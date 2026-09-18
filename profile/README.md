@@ -33,6 +33,7 @@ The name comes from pharmacology: a **formulary** is an official curated collect
 | [scan](https://github.com/Formulary-Labs/scan) | diagnostic scan | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
 | [compound](https://github.com/Formulary-Labs/compound) | compounding | Management system document generator — Annex SL Clauses 4–10 for any ISO management system standard |
 | [formula](https://github.com/Formulary-Labs/formula) | compound formula | Deterministic artifact generation pipeline — SoA CSV, risk CSV, impact assessment, evidence registry, and more |
+| **[regimen](https://github.com/Formulary-Labs/regimen)** | **treatment regimen** | **AI compliance program management agent — orchestrates all Formulary tools, manages program memory across sessions, governs intake through audit closure** |
 
 The tool names are real lab science vocabulary. `assay` is a systematic analytical test procedure. `titer` is a quantitative concentration measurement. `decay` is the gradual degradation of a substance over time. The theme is borrowed from the card game [Antidote](https://boardgamegeek.com/boardgame/145369/antidote): scientists in a lab deducing which compound is the cure before time runs out. Compliance programs are the same work.
 
@@ -44,7 +45,10 @@ The tool names are real lab science vocabulary. `assay` is a systematic analytic
 gemara schemas + gemara-go SDK        ← upstream data model and Go SDK
         ↓
 gemara-mcp (MCP server)               ← AI agent interface to gemara schemas
-Formulary tools (this org)            ← human/CI interface; produces gemara artifacts
+        ↓
+regimen (this org / AI agent layer)   ← compliance program management; orchestrates tools
+        ↓
+Formulary tools (this org / CLI)      ← deterministic execution; produces gemara artifacts
         ↓
 complytime                            ← continuous cloud-native assessment automation
 ```
