@@ -107,9 +107,11 @@ Formulary tools handle deterministic work: extraction, mapping, measurement, sch
 
 The AI agent layer handles judgment work: reasoning about heterogeneous raw materials, calibrating tone, prioritizing across competing concerns, drafting stakeholder communications.
 
+The reference implementation of the agent layer is [regimen](https://github.com/Formulary-Labs/regimen) — the principal-level compliance program management agent that orchestrates Formulary tools and governs everything that requires judgment.
+
 If implementing a tool requires an LLM to produce correct output, it belongs in the agent layer — not here.
 
-When in doubt: can you write a unit test that deterministically verifies the output for a given input? If yes, it belongs in Formulary. If no, it belongs in the agent layer.
+When in doubt: can you write a unit test that deterministically verifies the output for a given input? If yes, it belongs in Formulary. If no, it belongs in the agent layer (regimen).
 
 ---
 

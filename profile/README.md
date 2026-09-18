@@ -69,6 +69,8 @@ A practitioner runs `assay` from a terminal. A CI pipeline runs `probe` in a Git
 
 An AI agent calling these tools reduces token overhead significantly: instead of loading an entire framework document, product documentation corpus, and evidence history into context, the agent calls `assay` and gets back a structured gemara Layer 5 artifact. The deterministic extraction work happens outside the context window. The agent's reasoning is applied only where judgment is needed — triage, prioritization, stakeholder communication.
 
+The reference agent orchestration layer for Formulary is **[regimen](https://github.com/Formulary-Labs/regimen)** — a principal-level compliance program management agent that governs program intake through audit closure, manages program memory across sessions, and orchestrates Formulary tools for all deterministic work. Regimen and the Formulary tools are designed to work together but neither requires the other to function.
+
 All tools emit machine-readable output first (`--format json` default). Exit codes are meaningful (0 = clean, 1 = validation failure, 2 = tool error). No interactive prompts without `--interactive`. `--dry-run` on all write operations.
 
 ---
