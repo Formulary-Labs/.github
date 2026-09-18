@@ -4,6 +4,8 @@ A curated collection of composable open-source compliance tools.
 
 Each tool does one thing. Every tool reads and writes [gemara](https://github.com/gemaraproj/gemara)-compatible artifacts. Any tool's output is a valid input to the next. No tool requires an AI model to operate — but all are designed to be orchestrated by one.
 
+Every component is independently useful. Use one tool alone, pipe a few together, run them under [regimen](https://github.com/Formulary-Labs/regimen), or skip any piece entirely. Nothing in the org requires anything else at runtime — Go CLIs share the [substrate](https://github.com/Formulary-Labs/substrate) library at build time, but no tool depends on another tool or on regimen to function.
+
 ---
 
 ## Why Formulary
@@ -33,7 +35,7 @@ The name comes from pharmacology: a **formulary** is an official curated collect
 | [scan](https://github.com/Formulary-Labs/scan) | diagnostic scan | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
 | [compound](https://github.com/Formulary-Labs/compound) | compounding | Management system document generator — Annex SL Clauses 4–10 for any ISO management system standard |
 | [formula](https://github.com/Formulary-Labs/formula) | compound formula | Deterministic artifact generation pipeline — SoA CSV, risk CSV, impact assessment, evidence registry, and more |
-| **[regimen](https://github.com/Formulary-Labs/regimen)** | **treatment regimen** | **AI compliance program management agent — orchestrates all Formulary tools, manages program memory across sessions, governs intake through audit closure** |
+| [regimen](https://github.com/Formulary-Labs/regimen) | treatment regimen | AI compliance program management agent — can invoke any installed Formulary CLIs, manages program memory across sessions, governs intake through audit closure |
 
 The tool names are real lab science vocabulary. `assay` is a systematic analytical test procedure. `titer` is a quantitative concentration measurement. `decay` is the gradual degradation of a substance over time. The theme is borrowed from the card game [Antidote](https://boardgamegeek.com/boardgame/145369/antidote): scientists in a lab deducing which compound is the cure before time runs out. Compliance programs are the same work.
 
@@ -42,16 +44,18 @@ The tool names are real lab science vocabulary. `assay` is a systematic analytic
 ## How the pieces fit
 
 ```
-gemara schemas + gemara-go SDK        ← upstream data model and Go SDK
-        ↓
-gemara-mcp (MCP server)               ← AI agent interface to gemara schemas
-        ↓
-regimen (this org / AI agent layer)   ← compliance program management; orchestrates tools
-        ↓
-Formulary tools (this org / CLI)      ← deterministic execution; produces gemara artifacts
-        ↓
-complytime                            ← continuous cloud-native assessment automation
+                gemara schemas + gemara-go SDK
+                         │
+               ┌─────────┴──────────┐
+        gemara-mcp               Formulary CLIs
+     (optional MCP server)    (any subset, standalone)
+               │                    │
+               └─────── regimen ────┘   ← optional agent layer
+                            │
+                       complytime         ← optional consumer
 ```
+
+No arrow here is mandatory. Each layer is independently useful.
 
 Formulary tools sit between the gemara schema layer and complytime's continuous pipeline. They are the ad-hoc, human-facing complement to complytime's automated assessment — not a replacement for it.
 
@@ -71,7 +75,7 @@ A practitioner runs `assay` from a terminal. A CI pipeline runs `probe` in a Git
 
 An AI agent calling these tools reduces token overhead significantly: instead of loading an entire framework document, product documentation corpus, and evidence history into context, the agent calls `assay` and gets back a structured gemara Layer 5 artifact. The deterministic extraction work happens outside the context window. The agent's reasoning is applied only where judgment is needed — triage, prioritization, stakeholder communication.
 
-The reference agent orchestration layer for Formulary is **[regimen](https://github.com/Formulary-Labs/regimen)** — a principal-level compliance program management agent that governs program intake through audit closure, manages program memory across sessions, and orchestrates Formulary tools for all deterministic work. Regimen and the Formulary tools are designed to work together but neither requires the other to function.
+Formulary tools work without regimen. Regimen works without any given Formulary CLI — the function specs contain enough guidance for an agent to execute manually when a CLI is not installed. The reference agent layer is **[regimen](https://github.com/Formulary-Labs/regimen)** — a principal-level compliance program management agent that governs program intake through audit closure, manages program memory across sessions, and prefers Formulary CLIs for deterministic work when they are available.
 
 All tools emit machine-readable output first (`--format json` default). Exit codes are meaningful (0 = clean, 1 = validation failure, 2 = tool error). No interactive prompts without `--interactive`. `--dry-run` on all write operations.
 
