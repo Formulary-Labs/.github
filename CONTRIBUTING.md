@@ -97,7 +97,7 @@ New tool checklist:
 - [ ] README: one-paragraph description, installation, usage examples including pipe usage, gemara artifact reference
 - [ ] `probe` validation step in CI smoke test
 
-Before submitting the first PR, open an issue in this `.github` repository describing the tool's purpose, the prompt spec it derives from, and why it belongs in Formulary rather than the AI agent layer. This keeps the ecosystem focused on deterministic work.
+Before submitting the first PR, open an issue in this `.github` repository describing the tool's purpose, the compliance function or workflow it addresses, and why it belongs in Formulary rather than the AI agent layer. This keeps the ecosystem focused on deterministic work.
 
 ---
 

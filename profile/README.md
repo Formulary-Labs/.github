@@ -8,7 +8,7 @@ Each tool does one thing. Every tool reads and writes [gemara](https://github.co
 
 ## Why Formulary
 
-Manual compliance work does not scale. A compliance program manager running an ISO 42001 certification, an IEC 62443 product assessment, and an HDS audit simultaneously is doing the same extraction, mapping, and documentation work three times over — much of it deterministic.
+Manual compliance work does not scale. A compliance program manager running multiple certifications simultaneously is doing the same extraction, mapping, and documentation work across each one — most of it deterministic.
 
 Formulary separates the deterministic work (citation extraction, coverage math, evidence scheduling, drift diffing, document assembly) from the judgment work (prioritization, communication, stakeholder management). The deterministic work runs in a terminal or a CI pipeline. The judgment work is where human and AI attention belongs.
 
@@ -31,8 +31,8 @@ The name comes from pharmacology: a **formulary** is an official curated collect
 | [vital](https://github.com/Formulary-Labs/vital) | vital signs | Program health snapshot — internal dashboard for program managers |
 | [decay](https://github.com/Formulary-Labs/decay) | radioactive decay | Longitudinal compliance drift detection — 13 named patterns across 2+ audit cycles |
 | [scan](https://github.com/Formulary-Labs/scan) | diagnostic scan | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
-| [compound](https://github.com/Formulary-Labs/compound) | compounding | Management system document generator — Annex SL Clauses 4-10 (ISMS, AIMS, CSMS) |
-| [formula](https://github.com/Formulary-Labs/formula) | compound formula | Deterministic artifact generation pipeline — SoA, risk CSV, impact CSV, CCD, AIMS XLSX, and more |
+| [compound](https://github.com/Formulary-Labs/compound) | compounding | Management system document generator — Annex SL Clauses 4–10 for any ISO management system standard |
+| [formula](https://github.com/Formulary-Labs/formula) | compound formula | Deterministic artifact generation pipeline — SoA CSV, risk CSV, impact assessment, evidence registry, and more |
 
 The tool names are real lab science vocabulary. `assay` is a systematic analytical test procedure. `titer` is a quantitative concentration measurement. `decay` is the gradual degradation of a substance over time. The theme is borrowed from the card game [Antidote](https://boardgamegeek.com/boardgame/145369/antidote): scientists in a lab deducing which compound is the cure before time runs out. Compliance programs are the same work.
 
