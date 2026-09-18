@@ -12,6 +12,8 @@ Each Formulary tool is an independently distributable Go binary. Tools compose a
 
 This mirrors how [Charm](https://github.com/charmbracelet) organizes their ecosystem: separate repositories, shared conventions, composable at the shell.
 
+No tool is a runtime dependency of another — composition is pipes and files only. [Regimen](https://github.com/Formulary-Labs/regimen) is an optional consumer of any subset of tools; no tool requires it to operate.
+
 ---
 
 ## Shared conventions every tool must follow
