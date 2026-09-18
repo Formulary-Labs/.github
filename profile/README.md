@@ -61,8 +61,6 @@ Formulary tools sit between the gemara schema layer and complytime's continuous 
 
 **[complytime](https://github.com/complytime/complytime)** is a living design document for continuous automated compliance assessment in cloud-native systems. Formulary tools are designed to produce gemara Layer 5 artifacts that complytime's pipeline can ingest.
 
-**[Traust](https://github.com/traust-security/traust)** is a security auditing workflow engine for code, images, and packages. Formulary manages GRC compliance programs — different domain, different audience, natural bridge: Traust security findings are compliance evidence that `titer` and `specimen` can consume.
-
 ---
 
 ## AI orchestration
