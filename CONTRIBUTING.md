@@ -1,8 +1,6 @@
 # Contributing to Formulary
 
-Formulary is a collection of composable Go CLI tools for compliance program management. Each tool lives in its own repository under the [Formulary-Labs](https://github.com/Formulary-Labs) org.
-
-This document covers the shared conventions every tool must follow. Per-tool contribution guides live in each repository's own `CONTRIBUTING.md`.
+Each Formulary tool lives in its own repository and ships as an independently distributable binary. This document covers the conventions every tool must follow. Per-tool guides live in each repository's own `CONTRIBUTING.md`.
 
 ---
 

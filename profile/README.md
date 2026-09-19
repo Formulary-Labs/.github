@@ -1,18 +1,16 @@
 # Formulary
 
-Composable open-source compliance tools for compliance program managers.
+Composable open-source compliance tools.
 
-Each tool does one thing. Every tool reads and writes [gemara](https://github.com/gemaraproj/gemara)-compatible artifacts, so any tool's output is valid input to the next. No tool requires another tool to operate at runtime — composition is pipes and files.
+Each tool does one thing. Every tool reads and writes [gemara](https://github.com/gemaraproj/gemara)-compatible artifacts — any tool's output is valid input to the next. No tool requires another to operate at runtime. Composition is pipes and files.
 
-Use one tool standalone, pipe a few together, or run the full suite under [regimen](https://github.com/Formulary-Labs/regimen). Any subset works.
+One tool standalone, a few piped together, or the full suite under [regimen](https://github.com/Formulary-Labs/regimen). Any subset works.
 
 ## Why
 
 Manual compliance work does not scale. Running multiple certifications simultaneously means doing the same extraction, mapping, and documentation work across each one — most of it deterministic.
 
 Formulary separates the deterministic work (citation extraction, coverage math, evidence scheduling, drift detection, document assembly) from the judgment work (prioritization, communication, stakeholder management). The deterministic work runs in a terminal or a CI pipeline. The judgment work is where human and AI attention belongs.
-
-The name comes from pharmacology: a formulary is an official curated collection of treatments, each precisely specified, each independently useful, each combinable with others.
 
 ## Tools
 
@@ -32,8 +30,6 @@ The name comes from pharmacology: a formulary is an official curated collection 
 | [compound](https://github.com/Formulary-Labs/compound) | Management system document generator — Annex SL Clauses 4–10 for ISO 27001, ISO 42001, IEC 62443 |
 | [formula](https://github.com/Formulary-Labs/formula) | Deterministic artifact generation — SOA CSV, risk CSV, evidence registry, system card, and more |
 | [regimen](https://github.com/Formulary-Labs/regimen) | Compliance program management agent — orchestrates Formulary tools, manages program memory across sessions, governs intake through audit closure |
-
-The tool names are real lab science vocabulary. `assay` is a systematic analytical test procedure. `titer` is a quantitative concentration measurement. `decay` is the gradual degradation of a substance over time. The theme comes from the card game [Antidote](https://boardgamegeek.com/boardgame/145369/antidote): scientists in a lab deducing which compound is the cure before time runs out. Compliance programs are the same work.
 
 ## How the pieces fit
 
