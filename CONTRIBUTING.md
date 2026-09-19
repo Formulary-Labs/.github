@@ -6,11 +6,11 @@ This document covers the shared conventions every tool must follow. Per-tool con
 
 ---
 
-## The Charm pattern
+## Repository structure
 
 Each Formulary tool is an independently distributable Go binary. Tools compose at runtime via pipes and files — not at compile time. No tool imports another tool. Every tool imports `substrate`.
 
-This mirrors how [Charm](https://github.com/charmbracelet) organizes their ecosystem: separate repositories, shared conventions, composable at the shell.
+Each tool lives in its own repository under the [Formulary-Labs](https://github.com/Formulary-Labs) org. Separate repositories enforce the independence contract: a tool that cannot be built without another tool has violated it.
 
 No tool is a runtime dependency of another — composition is pipes and files only. [Regimen](https://github.com/Formulary-Labs/regimen) is an optional consumer of any subset of tools; no tool requires it to operate.
 

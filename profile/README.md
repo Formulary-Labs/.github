@@ -1,71 +1,61 @@
 # Formulary
 
-A curated collection of composable open-source compliance tools.
+Composable open-source compliance tools for compliance program managers.
 
-Each tool does one thing. Every tool reads and writes [gemara](https://github.com/gemaraproj/gemara)-compatible artifacts. Any tool's output is a valid input to the next. No tool requires an AI model to operate — but all are designed to be orchestrated by one.
+Each tool does one thing. Every tool reads and writes [gemara](https://github.com/gemaraproj/gemara)-compatible artifacts, so any tool's output is valid input to the next. No tool requires another tool to operate at runtime — composition is pipes and files.
 
-Every component is independently useful. Use one tool alone, pipe a few together, run them under [regimen](https://github.com/Formulary-Labs/regimen), or skip any piece entirely. Nothing in the org requires anything else at runtime — Go CLIs share the [substrate](https://github.com/Formulary-Labs/substrate) library at build time, but no tool depends on another tool or on regimen to function.
+Use one tool standalone, pipe a few together, or run the full suite under [regimen](https://github.com/Formulary-Labs/regimen). Any subset works.
 
----
+## Why
 
-## Why Formulary
+Manual compliance work does not scale. Running multiple certifications simultaneously means doing the same extraction, mapping, and documentation work across each one — most of it deterministic.
 
-Manual compliance work does not scale. A compliance program manager running multiple certifications simultaneously is doing the same extraction, mapping, and documentation work across each one — most of it deterministic.
+Formulary separates the deterministic work (citation extraction, coverage math, evidence scheduling, drift detection, document assembly) from the judgment work (prioritization, communication, stakeholder management). The deterministic work runs in a terminal or a CI pipeline. The judgment work is where human and AI attention belongs.
 
-Formulary separates the deterministic work (citation extraction, coverage math, evidence scheduling, drift diffing, document assembly) from the judgment work (prioritization, communication, stakeholder management). The deterministic work runs in a terminal or a CI pipeline. The judgment work is where human and AI attention belongs.
-
-The name comes from pharmacology: a **formulary** is an official curated collection of treatments, each precisely specified, each independently useful, each combinable with others. Compliance programs need the same thing — a shelf of tested, precise tools you can reach for when the work demands it.
-
----
+The name comes from pharmacology: a formulary is an official curated collection of treatments, each precisely specified, each independently useful, each combinable with others.
 
 ## Tools
 
-| Tool | Theme word | What it does |
-|---|---|---|
-| [substrate](https://github.com/Formulary-Labs/substrate) | lab growth medium | Core library — gemara SDK integration, shared CLI conventions, provenance writer |
-| [probe](https://github.com/Formulary-Labs/probe) | diagnostic probe | Validate a gemara artifact — clean exit codes for CI |
-| [assay](https://github.com/Formulary-Labs/assay) | systematic test | Control assessment engine — fill templates from product docs, produce gemara Layer 5 artifacts |
-| [titer](https://github.com/Formulary-Labs/titer) | concentration measure | Control coverage matrix — coverage % by family, owner gaps, evidence gaps |
-| [specimen](https://github.com/Formulary-Labs/specimen) | collected sample | Risk register and POA&M — with post-audit feed-forward ingest |
-| [dose](https://github.com/Formulary-Labs/dose) | dosing schedule | Evidence collection calendar — `.ics` and markdown, shift-left scheduled |
-| [exhibit](https://github.com/Formulary-Labs/exhibit) | examination exhibit | Auditor-filtered compliance posture view — static HTML, no internal data |
-| [challenge](https://github.com/Formulary-Labs/challenge) | challenge test | Adversarial compliance artifact interrogation — 10 deterministic patterns |
-| [vital](https://github.com/Formulary-Labs/vital) | vital signs | Program health snapshot — internal dashboard for program managers |
-| [decay](https://github.com/Formulary-Labs/decay) | radioactive decay | Longitudinal compliance drift detection — 13 named patterns across 2+ audit cycles |
-| [scan](https://github.com/Formulary-Labs/scan) | diagnostic scan | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
-| [compound](https://github.com/Formulary-Labs/compound) | compounding | Management system document generator — Annex SL Clauses 4–10 for any ISO management system standard |
-| [formula](https://github.com/Formulary-Labs/formula) | compound formula | Deterministic artifact generation pipeline — SoA CSV, risk CSV, impact assessment, evidence registry, and more |
-| [regimen](https://github.com/Formulary-Labs/regimen) | treatment regimen | AI compliance program management agent — can invoke any installed Formulary CLIs, manages program memory across sessions, governs intake through audit closure |
+| Tool | What it does |
+|---|---|
+| [substrate](https://github.com/Formulary-Labs/substrate) | Core library — gemara SDK wrappers, shared CLI conventions, provenance writer |
+| [probe](https://github.com/Formulary-Labs/probe) | Validate a gemara artifact — structured results and clean exit codes for CI |
+| [assay](https://github.com/Formulary-Labs/assay) | Control assessment engine — fill templates from product docs, produce gemara Layer 5 artifacts, resumable by checkpoint |
+| [titer](https://github.com/Formulary-Labs/titer) | Control coverage matrix — coverage % by family, owner gaps, evidence gaps |
+| [specimen](https://github.com/Formulary-Labs/specimen) | Risk register and POA&M — stable IDs, severity matrix, post-audit feed-forward ingest |
+| [dose](https://github.com/Formulary-Labs/dose) | Evidence collection calendar — RFC 5545 `.ics` and Markdown, shift-left scheduled to working days |
+| [exhibit](https://github.com/Formulary-Labs/exhibit) | Auditor compliance posture view — static HTML, no JavaScript, no internal-only data |
+| [challenge](https://github.com/Formulary-Labs/challenge) | Adversarial artifact interrogation — 10 deterministic patterns for audit readiness review |
+| [vital](https://github.com/Formulary-Labs/vital) | Program health snapshot — traffic-light ratings across coverage, risks, evidence, decisions |
+| [decay](https://github.com/Formulary-Labs/decay) | Longitudinal compliance drift detection — 13 named patterns across two audit cycles |
+| [scan](https://github.com/Formulary-Labs/scan) | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
+| [compound](https://github.com/Formulary-Labs/compound) | Management system document generator — Annex SL Clauses 4–10 for ISO 27001, ISO 42001, IEC 62443 |
+| [formula](https://github.com/Formulary-Labs/formula) | Deterministic artifact generation — SOA CSV, risk CSV, evidence registry, system card, and more |
+| [regimen](https://github.com/Formulary-Labs/regimen) | Compliance program management agent — orchestrates Formulary tools, manages program memory across sessions, governs intake through audit closure |
 
-The tool names are real lab science vocabulary. `assay` is a systematic analytical test procedure. `titer` is a quantitative concentration measurement. `decay` is the gradual degradation of a substance over time. The theme is borrowed from the card game [Antidote](https://boardgamegeek.com/boardgame/145369/antidote): scientists in a lab deducing which compound is the cure before time runs out. Compliance programs are the same work.
-
----
+The tool names are real lab science vocabulary. `assay` is a systematic analytical test procedure. `titer` is a quantitative concentration measurement. `decay` is the gradual degradation of a substance over time. The theme comes from the card game [Antidote](https://boardgamegeek.com/boardgame/145369/antidote): scientists in a lab deducing which compound is the cure before time runs out. Compliance programs are the same work.
 
 ## How the pieces fit
 
 ```
-                gemara schemas + gemara-go SDK
+                gemara schemas + go-gemara SDK
                          │
                ┌─────────┴──────────┐
-        gemara-mcp               Formulary CLIs
-     (optional MCP server)    (any subset, standalone)
+         gemara-mcp               Formulary CLIs
+    (optional MCP server)    (any subset, standalone)
                │                    │
                └─────── regimen ────┘   ← optional agent layer
                             │
                        complytime         ← optional consumer
 ```
 
-No arrow here is mandatory. Each layer is independently useful.
+No connection in this diagram is mandatory. Each layer is independently useful.
 
-Formulary tools sit between the gemara schema layer and complytime's continuous pipeline. They are the ad-hoc, human-facing complement to complytime's automated assessment — not a replacement for it.
+**[gemara](https://github.com/gemaraproj/gemara)** provides the schema and Go SDK that every Formulary tool builds on. `substrate` wraps `go-gemara` so tools share validation logic without duplicating it.
 
-**[gemara](https://github.com/gemaraproj/gemara)** provides the schema and Go SDK that every Formulary tool builds on. `substrate` wraps `gemara-go` so tools never duplicate validation logic.
+**[gemara-mcp](https://github.com/gemaraproj/gemara-mcp)** is the MCP server for AI agents interacting with gemara schemas. It and Formulary tools are parallel consumers of the same schema layer: `gemara-mcp` feeds AI agents context; Formulary tools produce artifacts that both AI agents and CI pipelines consume.
 
-**[gemara-mcp](https://github.com/gemaraproj/gemara-mcp)** is the MCP server for AI agents to interact with gemara schemas. It and Formulary tools are parallel, not sequential: one feeds AI agents context, the other produces artifacts that both AI agents and CI pipelines consume.
-
-**[complytime](https://github.com/complytime/complytime)** is a living design document for continuous automated compliance assessment in cloud-native systems. Formulary tools are designed to produce gemara Layer 5 artifacts that complytime's pipeline can ingest.
-
----
+**[complytime](https://github.com/complytime/complytime)** is a continuous automated compliance assessment system for cloud-native environments. Formulary tools produce gemara Layer 5 artifacts that complytime's pipeline can ingest.
 
 ## AI orchestration
 
@@ -73,46 +63,44 @@ These tools are AI-optional at the tool level and AI-beneficial at the orchestra
 
 A practitioner runs `assay` from a terminal. A CI pipeline runs `probe` in a GitHub Action. No model required, no API key, no token budget.
 
-An AI agent calling these tools reduces token overhead significantly: instead of loading an entire framework document, product documentation corpus, and evidence history into context, the agent calls `assay` and gets back a structured gemara Layer 5 artifact. The deterministic extraction work happens outside the context window. The agent's reasoning is applied only where judgment is needed — triage, prioritization, stakeholder communication.
+An AI agent calling these tools reduces token overhead: instead of loading an entire framework document, product documentation corpus, and evidence history into context, the agent calls `assay` and receives a structured gemara Layer 5 artifact. Deterministic extraction happens outside the context window. The agent's reasoning applies only where judgment is needed.
 
-Formulary tools work without regimen. Regimen works without any given Formulary CLI — the function specs contain enough guidance for an agent to execute manually when a CLI is not installed. The reference agent layer is **[regimen](https://github.com/Formulary-Labs/regimen)** — a principal-level compliance program management agent that governs program intake through audit closure, manages program memory across sessions, and prefers Formulary CLIs for deterministic work when they are available.
-
-All tools emit machine-readable output first (`--format json` default). Exit codes are meaningful (0 = clean, 1 = validation failure, 2 = tool error). No interactive prompts without `--interactive`. `--dry-run` on all write operations.
-
----
+Formulary tools work without regimen. Regimen works without any given Formulary CLI — its function specs contain enough guidance for an agent to execute manually when a CLI is not installed. All tools emit machine-readable output first (`--format json` default). Exit codes are meaningful: 0 = clean, 1 = validation failure, 2 = tool error.
 
 ## Composability
 
 ```bash
-# Assess a product, add high-severity gaps to risk register
-assay --framework iec62443 --product docs/ | titer --severity high | specimen add
+# Assess a product, add high-severity gaps to the risk register
+assay --framework iec62443 --catalog catalog.yaml --product-source docs/ \
+  | titer --severity high \
+  | specimen add
 
-# Challenge an assessment artifact before submitting to auditors
-assay --framework iso27001 --product docs/ > assessment.yaml
-challenge assessment.yaml --patterns all --severity-threshold medium
+# Interrogate an assessment artifact before submitting to auditors
+assay --framework iso27001 --catalog catalog.yaml --product-source docs/ > assessment.json
+challenge assessment.json --severity-threshold medium
 
 # Detect drift since last quarter
-decay --from 2026-Q2 --to 2026-Q3 | vital --format md > status.md
+decay --from snapshots/2026-Q2.json --to snapshots/2026-Q3.json \
+  | vital --format md > health.md
 
-# Generate an auditor-safe exhibit from current program state
-exhibit --program iso42001 --format html > exhibit.html
+# Build an auditor-ready exhibit from current program state
+titer --catalog catalog.yaml --soa soa.csv > coverage.json
+exhibit --program iso42001 --coverage coverage.json --risks risks.json \
+        --evidence evidence.json --provenance logs/provenance.jsonl \
+        > dashboard.html
 
-# Ingest post-audit feed-forward for the next cycle
+# Ingest post-audit findings for the next cycle
 specimen ingest --feed-forward post-audit/2026-feed-forward.json
 
 # Validate a gemara artifact in CI
-probe artifact.yaml && echo "valid gemara artifact"
+probe catalog.yaml && echo "valid"
 ```
-
----
 
 ## Status
 
 Active development. Sprint 1 (Foundation) in progress.
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) to contribute or add a new tool.
-
----
+See [CONTRIBUTING.md](../CONTRIBUTING.md) to contribute or propose a new tool.
 
 ## License
 
