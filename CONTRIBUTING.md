@@ -126,6 +126,147 @@ If you have a production use case for either, open an issue.
 
 ---
 
+## Go implementation patterns
+
+These patterns are required in all Formulary tool code. They are checked by the shared `.golangci.yml`. See [STYLE.md](STYLE.md) for output format and flag conventions.
+
+### Error handling
+
+Errors that reach `main` go to stderr as structured JSON, then exit with the appropriate code:
+
+```go
+if err != nil {
+    fmt.Fprintf(os.Stderr, `{"error": %q, "code": 2}`+"\n", err.Error())
+    os.Exit(exit.ToolError)
+}
+```
+
+Within library code, always wrap with context:
+
+```go
+return nil, fmt.Errorf("loading catalog from %q: %w", path, err)
+```
+
+Never swallow errors silently. If an error is intentionally ignored, document why with a comment and suppress the lint warning with a reason:
+
+```go
+_ = enc.Encode(result) //nolint:errcheck // write to stdout; if it fails, the process dies anyway
+```
+
+### No logging framework
+
+Do not use the `log` package, `slog`, or any third-party logger. All output follows the stdout/stderr split:
+
+```go
+// progress → stderr
+fmt.Fprintf(os.Stderr, "[%s] %s\n", toolName, message)
+
+// errors → stderr
+fmt.Fprintf(os.Stderr, `{"error": %q, "code": 2}`+"\n", err.Error())
+
+// data → stdout
+enc := json.NewEncoder(os.Stdout)
+enc.SetIndent("", "  ")
+_ = enc.Encode(result)
+```
+
+### Exit code contract
+
+Always use `substrate/exit` constants. Never use raw integers.
+
+```go
+import "github.com/Formulary-Labs/substrate/exit"
+
+os.Exit(exit.OK)         // 0 — clean
+os.Exit(exit.Validation) // 1 — validation failure
+os.Exit(exit.ToolError)  // 2 — unexpected failure
+```
+
+### gemara artifact loading
+
+Always load gemara artifacts through `substrate/artifact`. Never import `go-gemara` directly from a tool — the substrate shim is the insulation layer that absorbs upstream API changes.
+
+```go
+import "github.com/Formulary-Labs/substrate/artifact"
+
+catalog, err := artifact.LoadControlCatalog(catalogPath)
+if err != nil {
+    fmt.Fprintf(os.Stderr, `{"error": %q, "code": 2}`+"\n", err.Error())
+    os.Exit(exit.ToolError)
+}
+```
+
+Loaders available in `substrate/artifact`:
+
+| Function | Gemara layer | Type |
+|---|---|---|
+| `LoadControlCatalog(path)` | Layer 2 | `*ControlCatalog` |
+| `LoadGuidanceCatalog(path)` | Layer 1 | `*GuidanceCatalog` |
+| `LoadRiskCatalog(path)` | Layer 3 | `*RiskCatalog` |
+| `LoadPolicy(path)` | Layer 3 | `*Policy` |
+| `LoadEvaluationLog(path)` | Layer 5 | `*EvaluationLog` |
+| `LoadAuditLog(path)` | Layer 7 | `*AuditLog` |
+| `LoadMappingDocument(path)` | Layer 3 | `*MappingDocument` |
+| `DetectType(path)` | — | `ArtifactType` |
+
+### Framework identity
+
+Never hardcode framework names in tool logic. Framework identity comes from the gemara artifact's `metadata.id` field at runtime.
+
+```go
+// Correct: read identity from the artifact
+framework := catalog.Metadata.Id  // "iso42001", "iso27001", "iec62443", etc.
+
+// Wrong: hardcode framework logic
+if framework == "iso42001" {
+    // framework-specific behavior
+}
+```
+
+Framework-specific behavior is delivered by providing different catalog files, not by branching on framework names.
+
+### Control lifecycle filtering
+
+The `ControlCatalog.Control.State` field carries lifecycle state (Active, Draft, Deprecated, Retired). Tools that iterate controls must skip Deprecated and Retired entries unless the caller opts in:
+
+```go
+for _, ctrl := range catalog.Controls {
+    if ctrl.State == "Deprecated" || ctrl.State == "Retired" {
+        continue
+    }
+    // process active controls
+}
+```
+
+### Comment style
+
+Package-level doc comments follow Go standard:
+
+```go
+// Package coverage computes control coverage metrics from a gemara ControlCatalog.
+package coverage
+```
+
+Section dividers inside long files use em-dash separators:
+
+```go
+// ── flag parsing ────────────────────────────────────────────────
+```
+
+Inline comments explain non-obvious behavior only. Never narrate what the code does — the code is the narration.
+
+### `//nolint` directives
+
+Every `//nolint` directive must include a reason:
+
+```go
+_ = enc.Encode(result) //nolint:errcheck // write to stdout; fatal if fails
+```
+
+`//nolint` without a reason is rejected by the `nolintlint` linter.
+
+---
+
 ## Repository governance
 
 - Issues and PRs for cross-tool concerns (substrate changes, shared convention updates) belong in this `.github` repository
