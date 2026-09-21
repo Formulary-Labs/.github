@@ -21,6 +21,7 @@ How the Formulary ecosystem fits together — data flows, layer responsibilities
 │                                                                     │
 │  probe · assay · titer · specimen · dose · exhibit · challenge      │
 │  vital · decay · scan · compound · formula · bind                   │
+│  impact · appraise                                                   │
 │                                                                     │
 │  Each tool does one thing. Reads gemara artifacts + program state.  │
 │  Writes gemara artifacts or structured outputs. No inference,       │
@@ -66,7 +67,7 @@ Layer 4 — Evidence
 
 Layer 5 — Assessment results
   EvaluationLog       control assessment output (produced by assay)
-  RiskCatalog         risk register entries (produced by specimen)
+  RiskCatalog         risk register entries (input to specimen catalog; source for impact)
 ```
 
 ### Typical data flow
@@ -92,6 +93,10 @@ ControlCatalog (L1) ──► assay ──► EvaluationLog (L5)
 `probe` validates any artifact at any layer before it enters a pipeline step.
 
 `bind` operates at Layer 1 — it reads `MappingDocument` artifacts and resolves cross-framework control equivalences without producing a new gemara layer artifact (output is JSON/MD/CSV for downstream use).
+
+`impact` operates at Layer 1–3 — reads a `ControlCatalog` and optional `RiskCatalog`; produces `impact-assessment.csv` mapping controls to potential harms and linked risk severity. Framework identity comes from catalog metadata.
+
+`appraise` operates across all available layers — accepts any gemara artifacts as input, auto-detects their type, and generates a framework-agnostic compliance narrative Markdown document with `[DATA NEEDED]` placeholders for sections requiring AI judgment.
 
 `scan` and `decay` operate on program state snapshots, not gemara artifacts directly.
 
