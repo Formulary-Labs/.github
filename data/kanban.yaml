@@ -1,0 +1,46 @@
+schema_version: "1.0"
+program: formulary
+board_name: Formulary — Compliance Micro-Tools Ecosystem
+updated_at: "2026-09-21"
+jira_project_key: null
+jira_board_id: null
+
+sprints:
+  - id: sprint-8
+    name: Sprint 8 — CI Hardening & Ecosystem Completeness
+    start: "2026-09-21"
+    end: "2026-10-10"
+    goal: Fix CI across all 16 tool repos, publish substrate v0.1.0, update org profile for impact and appraise
+    state: active
+
+columns:
+  - { id: backlog,     name: Backlog }
+  - { id: to_do,       name: To Do }
+  - { id: in_progress, name: In Progress }
+  - { id: in_review,   name: In Review }
+  - { id: done,        name: Done }
+  - { id: blocked,     name: Blocked }
+  - { id: canceled,    name: Canceled }
+
+cards:
+
+  - id: PM-051
+    type: task
+    title: "Org profile README — add impact and appraise (tools table, install, CATALOGS.md)"
+    description: >
+      Update the Formulary-Labs org profile to reflect the two new tools added
+      in sprint-7. Specifically: (1) Add `impact` and `appraise` rows to the
+      tools table in profile/README.md with correct one-line descriptions and
+      links. (2) Add `go install` lines for both tools to the Installation
+      section. (3) Add `impact` to CATALOGS.md since it reads a ControlCatalog
+      as its primary input.
+    column: to_do
+    priority: medium
+    sprint: sprint-8
+    labels: [docs, org-profile, impact, appraise]
+    acceptance_criteria:
+      - "`impact` and `appraise` rows present in the tools table in profile/README.md"
+      - "Installation section includes `go install` lines for both tools"
+      - "CATALOGS.md lists `impact` with a description of its ControlCatalog usage"
+    created_at: "2026-09-21"
+    updated_at: "2026-09-21"
