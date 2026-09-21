@@ -29,6 +29,7 @@ Formulary separates the deterministic work (citation extraction, coverage math, 
 | [scan](https://github.com/Formulary-Labs/scan) | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
 | [compound](https://github.com/Formulary-Labs/compound) | Management system document generator — Annex SL Clauses 4–10 for ISO 27001, ISO 42001, IEC 62443 |
 | [formula](https://github.com/Formulary-Labs/formula) | Deterministic artifact generation — SOA CSV, risk CSV, evidence registry, system card, and more |
+| [bind](https://github.com/Formulary-Labs/bind) | Cross-framework control mapping resolver — reads a gemara MappingDocument, resolves source-to-target control mappings, flags missing IDs |
 | [regimen](https://github.com/Formulary-Labs/regimen) | Compliance program management agent — orchestrates Formulary tools, manages program memory across sessions, governs intake through audit closure |
 
 ## How the pieces fit
@@ -92,9 +93,33 @@ specimen ingest --feed-forward post-audit/2026-feed-forward.json
 probe catalog.yaml && echo "valid"
 ```
 
+## Installation
+
+All CLI tools are available as pre-built binaries (linux/amd64, darwin/arm64, darwin/amd64, windows/amd64) from each tool's releases page, or install from source:
+
+```bash
+go install github.com/Formulary-Labs/probe/cmd/probe@v0.1.0
+go install github.com/Formulary-Labs/assay/cmd/assay@v0.1.0
+go install github.com/Formulary-Labs/titer/cmd/titer@v0.1.0
+go install github.com/Formulary-Labs/specimen/cmd/specimen@v0.1.0
+go install github.com/Formulary-Labs/dose/cmd/dose@v0.1.0
+go install github.com/Formulary-Labs/exhibit/cmd/exhibit@v0.1.0
+go install github.com/Formulary-Labs/challenge/cmd/challenge@v0.1.0
+go install github.com/Formulary-Labs/vital/cmd/vital@v0.1.0
+go install github.com/Formulary-Labs/decay/cmd/decay@v0.1.0
+go install github.com/Formulary-Labs/scan/cmd/scan@v0.1.0
+go install github.com/Formulary-Labs/compound/cmd/compound@v0.1.0
+go install github.com/Formulary-Labs/formula/cmd/formula@v0.1.0
+go install github.com/Formulary-Labs/bind/cmd/bind@v0.1.0
+```
+
+`substrate` is a library — import it as a Go module, not a binary.
+
+Tools that require a gemara `ControlCatalog` or `MappingDocument` YAML need catalog files. See [CATALOGS.md](../CATALOGS.md) for known catalog sources.
+
 ## Status
 
-Active development. Sprint 1 (Foundation) in progress.
+v0.1.0 released across all 13 CLI tools and the substrate library.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) to contribute or propose a new tool.
 
