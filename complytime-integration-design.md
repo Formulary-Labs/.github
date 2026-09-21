@@ -1,7 +1,7 @@
 # Formulary — Proposed Complytime Integration Design
 
-**Status:** Draft — ready for submission to complytime `docs/plans/` once tools reach v0.2.0  
-**Date:** 2026-09-18  
+**Status:** v0.1.0 — ready for submission  
+**Date:** 2026-09-21  
 **From:** Formulary-Labs (github.com/Formulary-Labs)
 
 ---
@@ -43,11 +43,17 @@ The output is a gemara Layer 5 artifact with full requirement fidelity. This art
 
 **Complytime's problem:** Organizations operating under multiple frameworks must manually duplicate assessment work across frameworks.
 
-**Formulary's contribution:** `titer` reads gemara Layer 2 control catalogs and computes coverage matrices. Because it operates on the gemara schema (which is framework-agnostic), the same coverage computation works across ISO 27001, ISO 42001, IEC 62443, and any other framework represented in gemara.
+**Formulary's primary contribution:** `bind` reads a gemara `MappingDocument` (Layer 1 artifact) and resolves cross-framework control mappings deterministically. Given a `MappingDocument` for ISO 27001 → NIST SP 800-53 and the corresponding `ControlCatalog` files, `bind` produces a structured mapping table — which source controls correspond to which target controls, which are unmapped (no-match relationship), and which source IDs are absent from the catalog (data quality flags).
 
-The deferred `bind` tool (cross-framework control mapping) would extend this further. However, `bind` is deferred due to limited production evidence — this contribution should be revisited when complytime's cross-framework problem doc matures.
+This is a direct answer to the cross-framework duplication problem: instead of re-assessing against every framework independently, organizations maintain a gemara `MappingDocument` and use `bind` to derive coverage overlap from existing assessments.
 
-**Proposed integration:** `titer --catalog iec62443.yaml | titer --catalog iso27001.yaml --compare` for cross-framework coverage gap analysis.
+`titer` addresses a complementary angle: it computes coverage matrices from a single framework's control catalog. For single-framework coverage analysis, `titer` is the right tool. For cross-framework equivalence resolution, `bind` is more directly relevant.
+
+**Proposed integration:** 
+- `bind --document mapping.yaml --format json` → complytime ingest for cross-framework control equivalences
+- Unmapped controls from `bind --filter unmapped` feed into complytime as coverage gaps requiring independent assessment
+
+**Proposed schema contribution:** The gemara `MappingDocument` artifact type (already in the gemara schema) is the natural schema for cross-framework control mappings in complytime. We propose complytime adopt `MappingDocument` as the standard input format for cross-framework mapping workflows rather than developing a parallel format.
 
 ### Evidence Integration Problem
 
@@ -91,9 +97,9 @@ Based on Formulary's production usage, we propose the following additions to the
 
 | Milestone | Target | Artifact |
 |---|---|---|
-| Formulary v0.2.0 (all tools stable) | 2026-Q4 | Open issue in complytime proposing this document |
+| Formulary v0.1.0 (all 13 tools released) | 2026-09-21 ✓ | This document — initial submission |
 | gemara schema proposals | 2026-Q4 | PRs to gemaraproj/gemara for Layer 3 and citation quality extensions |
-| complytime problem doc alignment | 2027-Q1 | Submit design doc to complytime docs/plans/ |
+| complytime problem doc alignment | 2026-Q4 | Follow-up discussion on `MappingDocument` adoption for cross-framework workflows |
 | assay evaluator protocol | 2027-Q1 | Draft evaluator protocol spec for complytime review |
 
 ---
