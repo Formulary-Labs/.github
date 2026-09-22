@@ -30,6 +30,8 @@ Formulary separates the deterministic work (citation extraction, coverage math, 
 | [compound](https://github.com/Formulary-Labs/compound) | Management system document generator — Annex SL Clauses 4–10 for ISO 27001, ISO 42001, IEC 62443 |
 | [formula](https://github.com/Formulary-Labs/formula) | Deterministic artifact generation — SOA CSV, risk CSV, evidence registry, system card, and more |
 | [bind](https://github.com/Formulary-Labs/bind) | Cross-framework control mapping resolver — reads a gemara MappingDocument, resolves source-to-target control mappings, flags missing IDs |
+| [impact](https://github.com/Formulary-Labs/impact) | Control impact assessment — links controls to potential harms and linked risks from a RiskCatalog; one row per control, CSV output |
+| [appraise](https://github.com/Formulary-Labs/appraise) | Framework-agnostic compliance narrative generator — accepts any combination of gemara artifacts, produces structured Markdown with `[DATA NEEDED]` handoffs for the AI agent layer |
 | [regimen](https://github.com/Formulary-Labs/regimen) | Compliance program management agent — orchestrates Formulary tools, manages program memory across sessions, governs intake through audit closure |
 
 ## How the pieces fit
@@ -111,6 +113,8 @@ go install github.com/Formulary-Labs/scan/cmd/scan@v0.1.0
 go install github.com/Formulary-Labs/compound/cmd/compound@v0.1.0
 go install github.com/Formulary-Labs/formula/cmd/formula@v0.1.0
 go install github.com/Formulary-Labs/bind/cmd/bind@v0.1.0
+go install github.com/Formulary-Labs/impact/cmd/impact@v0.1.0
+go install github.com/Formulary-Labs/appraise/cmd/appraise@v0.1.0
 ```
 
 `substrate` is a library — import it as a Go module, not a binary.
@@ -119,7 +123,7 @@ Tools that require a gemara `ControlCatalog` or `MappingDocument` YAML need cata
 
 ## Status
 
-v0.1.0 released across all 13 CLI tools and the substrate library.
+v0.1.0 released across all 15 CLI tools and the substrate library.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) to contribute or propose a new tool.
 

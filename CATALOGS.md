@@ -74,6 +74,7 @@ controls:
 | [`titer`](https://github.com/Formulary-Labs/titer) | `--catalog` | Coverage computation |
 | [`challenge`](https://github.com/Formulary-Labs/challenge) | `--catalog` | Inheritance validation in interrogation |
 | [`bind`](https://github.com/Formulary-Labs/bind) | `--source-catalog`, `--target-catalog` | Title resolution and source-ID validation |
+| [`impact`](https://github.com/Formulary-Labs/impact) | `--catalog` | ControlCatalog source; optional `--risk-catalog` (RiskCatalog) links controls to risk severity and impact text |
 
 ## Tools that require a MappingDocument
 
