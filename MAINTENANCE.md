@@ -159,10 +159,22 @@ violations flagged across six linter categories.
   finds **real violations**. Fix the violations before declaring CI green.
 - `go fmt ./...` (not `gofmt -w ./...`) is the correct command to recursively format all packages.
 - File permission constants in production code: directories → `0o750`, files → `0o600`.
+  **This applies to test files too** — gosec checks `os.WriteFile` in `_test.go` files.
 - For test helper files, prefer `//nolint:errcheck // test read-only file` over try/catch boilerplate.
 - When a new substrate minor version adds exported symbols, check ALL tool repos that use those
   symbols — not just the ones you added the symbols for. `specimen` had the same dependency on
   `artifact.LoadRiskCatalog` as `impact`/`appraise` but was missed in the v0.2.0 pass.
+- `//nolint:lintername` must be placed on the **declaration line**, not the doc-comment line above it.
+  Placing a nolint on a comment has no effect on the declaration that follows.
+- `//nolint:nolintlint` fires when a nolint directive is unused. Two common causes:
+  (a) you already suppressed the error a different way (e.g. `_, _ = f()` makes `//nolint:errcheck` redundant),
+  (b) the linter doesn't flag test files (e.g. gosec ignores `_test.go`).
+- revive `exported` rule: every exported identifier needs a doc comment starting with the identifier
+  name. For large const blocks of self-documenting string identifiers, add `//nolint:revive // self-documenting`
+  before the `const (` block. For type alias blocks, add individual `// TypeName ...` comments.
+- revive `unused-parameter`: scan ALL function signatures, not just the ones the CI shows — the CI may
+  show only the first N violations. A function that has ONE of its params renamed to `_` may still
+  have OTHER params that are also unused.
 
 ---
 
