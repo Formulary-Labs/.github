@@ -178,6 +178,37 @@ violations flagged across six linter categories.
 
 ---
 
+---
+
+## 2026-09-22 — Sprint 9: gofmt after adding multi-field var blocks
+
+### Symptoms
+specimen and titer CI failed immediately after the Sprint 9 FAIR feature push:
+```
+cmd/specimen/main.go:71:1: File is not properly formatted (gofmt)
+coverage/coverage.go:93:1: File is not properly formatted (gofmt)
+```
+
+### Root cause
+When adding multiple new variables to an existing `var (...)` block, the manual
+tab alignment between variable names and `=` signs can become inconsistent with
+what `gofmt` expects. `gofmt` uses tab stops, so the longest variable name in
+the block sets the alignment for the entire block. In specimen, adding
+`exposureFactor` (longer than `controlID`) shifted the expected tab column for
+all other variables.
+
+### Fix
+Run `go fmt ./...` in both repos immediately after edits, before committing.
+Fixes were committed as style-only follow-up commits and pushed.
+
+### Lesson learned
+**Always run `go fmt ./...` in the changed repo before committing**, especially
+when editing `var (...)` blocks. The CI linter catches this instantly and
+wastes a full CI run. Add `go fmt ./...` as a pre-commit habit for all Sprint
+work, or consider a local pre-commit hook.
+
+---
+
 ## Standing rules
 
 - **substrate tags**: cut a new semver tag for every commit that adds or changes exported API.
