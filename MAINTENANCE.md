@@ -133,6 +133,39 @@ https://golangci-lint.run/docs/product/migration-guide/.
 
 ---
 
+## CI Remediation Pass 4 — Lint violations (2026-09-22)
+
+### Symptoms
+golangci-lint now running correctly with v2 config. All 16 repos had real code-quality
+violations flagged across six linter categories.
+
+### Root causes and fixes
+
+| Linter | Violation | Fix applied |
+|---|---|---|
+| `gofmt` | Many files not properly formatted | Ran `go fmt ./...` across all 16 repos |
+| `gosec G301` | `os.MkdirAll(path, 0o755)` — dirs should be 0750 | Changed to `0o750` in 8 production files |
+| `gosec G302/G306` | `os.WriteFile/OpenFile` with `0o644` | Changed to `0o600` in 9 production files |
+| `errcheck` | Unchecked `defer f.Close()` and `os.WriteFile` returns | Added `//nolint:errcheck` on test read-only closes; fixed open error handling in tests |
+| `staticcheck QF1012` | `b.WriteString(fmt.Sprintf(...))` in dose/calendar | Converted 7 occurrences to `fmt.Fprintf(&b, ...)` |
+| `staticcheck QF1003` | `if e.Status == ...` in exhibit/render | Converted to a `switch e.Status { }` block |
+| `revive unused-parameter` | `verbose bool` in probe; `cfg/ctx/orgName` in compound writeClause9/10/5 | Renamed unused params to `_` |
+| `revive exported` (comment format) | Missing/wrong doc comment format on exported consts/types | Added `//nolint:revive` to self-documenting const blocks; fixed var/type doc comments |
+| `revive exported` (stutter) | `drift.DriftReport`, `render.RenderHTML`, etc. | Added `//nolint:revive // stutter is intentional` on affected type/func lines |
+| **Build failure** | `specimen` used `artifact.LoadRiskCatalog` but was on substrate v0.1.0 | Bumped specimen to `substrate v0.2.0` |
+
+### Lessons
+- After fixing the linter infrastructure (action version, config schema), the linter runs and
+  finds **real violations**. Fix the violations before declaring CI green.
+- `go fmt ./...` (not `gofmt -w ./...`) is the correct command to recursively format all packages.
+- File permission constants in production code: directories → `0o750`, files → `0o600`.
+- For test helper files, prefer `//nolint:errcheck // test read-only file` over try/catch boilerplate.
+- When a new substrate minor version adds exported symbols, check ALL tool repos that use those
+  symbols — not just the ones you added the symbols for. `specimen` had the same dependency on
+  `artifact.LoadRiskCatalog` as `impact`/`appraise` but was missed in the v0.2.0 pass.
+
+---
+
 ## Standing rules
 
 - **substrate tags**: cut a new semver tag for every commit that adds or changes exported API.
