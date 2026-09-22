@@ -13,6 +13,13 @@ sprints:
     goal: Fix CI across all 16 tool repos, publish substrate v0.1.0, update org profile for impact and appraise
     state: active
 
+  - id: sprint-9
+    name: Sprint 9 — Enterprise Hardening
+    start: "2026-10-11"
+    end: "2026-10-31"
+    goal: Add FAIR quantitative risk math to specimen + titer; add hash-chain provenance integrity to substrate + exhibit
+    state: planned
+
 columns:
   - { id: backlog,     name: Backlog }
   - { id: to_do,       name: To Do }
@@ -44,3 +51,74 @@ cards:
       - "CATALOGS.md lists `impact` with a description of its ControlCatalog usage"
     created_at: "2026-09-21"
     updated_at: "2026-09-21"
+
+  - id: PM-052
+    type: feature
+    title: "FAIR Quantitative Risk Math (specimen + titer)"
+    description: >
+      Upgrade specimen's risk register to support FAIR (Factor Analysis of
+      Information Risk) quantitative fields: AssetValue, ExposureFactor,
+      AnnualRateOfOccurrence, computed ALE, and DataClassification. Auto-compute
+      ALE on add/update. Add CLI flags --asset-value, --exposure-factor, --aro,
+      --data-class to specimen add/update. In titer, add --risk-register and
+      --min-exposure-usd flags to cross-reference gap priority with financial
+      exposure, enabling filtering by calculated ALE rather than coarse severity.
+    column: to_do
+    priority: high
+    sprint: sprint-9
+    labels: [specimen, titer, fair, risk, enterprise]
+    acceptance_criteria:
+      - "Risk struct includes AssetValue, ExposureFactor, AnnualRateOfOccurrence, ALE, DataClassification fields"
+      - "ALE is auto-computed in Add() and Update() when FAIR inputs are set"
+      - "specimen add accepts --asset-value, --exposure-factor, --aro, --data-class"
+      - "specimen update accepts --asset-value, --exposure-factor, --aro (triggers ALE recompute)"
+      - "titer --risk-register loads specimen JSON and builds controlID→ALE map"
+      - "titer --min-exposure-usd filters gaps to those with ALE >= threshold"
+      - "CoverageGap includes ale field populated when risk-register is provided"
+    created_at: "2026-09-22"
+    updated_at: "2026-09-22"
+
+  - id: PM-053
+    type: feature
+    title: "Hash-chain Provenance Integrity (substrate + exhibit)"
+    description: >
+      Add cryptographic hash chaining to the provenance JSONL log in substrate.
+      Each Entry gets PreviousDigest and Digest fields (SHA-256). Write()
+      automatically chains entries. Add Verify() to re-read the log and validate
+      the chain. Tag substrate v0.3.0. Bump all 15 tool go.mod files. Add
+      --verify-provenance flag to exhibit that calls Verify() before assembling
+      reports; exit 2 if the chain is broken.
+    column: to_do
+    priority: high
+    sprint: sprint-9
+    labels: [substrate, exhibit, provenance, security, enterprise]
+    acceptance_criteria:
+      - "Entry struct has PreviousDigest and Digest fields"
+      - "Write() computes and chains SHA-256 digests"
+      - "Verify() reads the log and returns per-entry VerificationResult"
+      - "substrate tagged v0.3.0 and published"
+      - "All 15 tool go.mod files bumped to substrate v0.3.0"
+      - "exhibit --verify-provenance (default true) calls Verify() pre-assembly"
+      - "exhibit exits 2 and reports broken entries if chain is invalid"
+    created_at: "2026-09-22"
+    updated_at: "2026-09-22"
+
+  - id: PM-054
+    type: feature
+    title: "Distributed State Engine & Federated Aggregation"
+    description: >
+      A native map-reduce state engine for gemara artifacts. Tools like titer and
+      decay need built-in federated aggregation logic to roll up localized
+      assessments from many repositories into a single hierarchical organizational
+      state with strict lineage tags. Deferred pending FAIR math and provenance
+      hardening in Sprint 9.
+    column: backlog
+    priority: medium
+    sprint: sprint-10
+    labels: [titer, decay, federated, enterprise, deferred]
+    acceptance_criteria:
+      - "New federate tool or titer --federate flag aggregates multiple coverage matrices"
+      - "Lineage tags preserved so auditors can drill from org-level to repo-level gap"
+      - "Schema supports entity_path and jurisdiction fields"
+    created_at: "2026-09-22"
+    updated_at: "2026-09-22"
