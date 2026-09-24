@@ -5,6 +5,42 @@ Each entry documents what broke, why, and how it was fixed to prevent repeating 
 
 ---
 
+## 2026-09-24 — Dependency Health Audit Remediation (PM-067 – PM-070)
+
+### Trigger
+External dependency health audit (Kore, 2026-09-24) identified 10 HIGH/MEDIUM Go stdlib
+vulnerabilities (GO-2026-*) in the go1.26.2 toolchain across all 16 modules. All findings
+are fixed by upgrading to go 1.26.6.
+
+### Changes applied
+
+**PM-067 — Go toolchain upgrade to 1.26.6**
+- Bumped `go` directive from `1.25.0` to `1.26.6` in all 16 `go.mod` files.
+- Ran `go mod tidy` across all 16 modules; all builds verified clean.
+- Updated `go-version` from `"1.25"` to `"1.26.6"` in all 16 CI workflows.
+- Updated workspace `README.md` prerequisites and `Makefile` header comment.
+- Confirmed golangci-lint v2.13.2 (current pin) is built with Go 1.26.0 — no version bump required.
+- Ran `govulncheck` — all 16 modules scan clean against go1.26.6.
+
+**PM-068 — Pin govulncheck and add dep-health Makefile target**
+- Replaced `@latest` with `@v1.1.4` for govulncheck in all 16 CI `ci.yaml` workflows.
+- Added `dep-health` Makefile target that installs `govulncheck@v1.1.4` and runs a full scan.
+- Created `formulary-github-org/GO_VERSION` as canonical single source of truth for the required Go version (`1.26.6`).
+
+**PM-069 — Dependabot**
+- Created canonical `dependabot.yml` in `formulary-github-org/` covering Go modules and GitHub Actions (weekly, Monday).
+- Deployed `dependabot.yml` to `.github/` in all 16 module repos.
+
+**PM-070 — Weekly dep-health scheduled workflow**
+- Created `.github/workflows/dep-health.yaml` in all 16 module repos: runs `govulncheck@v1.1.4` on Monday 08:00 UTC and supports `workflow_dispatch`.
+
+### Lesson
+Pinning `govulncheck@latest` in CI is non-reproducible and masks version drift. Use an exact
+version tag in all CI invocations and wrap local dev with a `dep-health` Makefile target that
+mirrors CI. Enable Dependabot to surface updates before they accumulate into a batch audit finding.
+
+---
+
 ## 2026-09-21 — CI Remediation Pass 1: `replace` directive and substrate integration test
 
 ### Symptoms

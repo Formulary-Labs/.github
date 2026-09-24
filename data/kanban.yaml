@@ -1,7 +1,7 @@
 schema_version: "1.0"
 program: formulary
 board_name: Formulary — Compliance Micro-Tools Ecosystem
-updated_at: "2026-09-21"
+updated_at: "2026-09-23"
 jira_project_key: null
 jira_board_id: null
 
@@ -18,6 +18,22 @@ sprints:
     start: "2026-10-11"
     end: "2026-10-31"
     goal: Add FAIR quantitative risk math to specimen + titer; add hash-chain provenance integrity to substrate + exhibit
+    state: planned
+
+  - id: sprint-10
+    name: Sprint 10 — FAIR Scale, Schema Versioning, Signing Architecture
+    start: "2026-11-01"
+    end: "2026-11-21"
+    goal: Standardized loss tables for consistent cross-subsidiary ALE; schema versioning on all Formulary output formats; signing module architecture for Sprint 11
+    state: planned
+
+  - id: sprint-11
+    name: Sprint 11 — Signing Module & Pipeline Hardening
+    start: "2026-11-22"
+    end: "2026-12-12"
+    goal: >
+      Ship signing module (PM-057); fix high-priority pipeline blockers found
+      during test program setup (run_date parsing, install target, challenge integration)
     state: planned
 
 columns:
@@ -122,3 +138,339 @@ cards:
       - "Schema supports entity_path and jurisdiction fields"
     created_at: "2026-09-22"
     updated_at: "2026-09-22"
+
+  - id: PM-055
+    type: feature
+    title: "Standardized Loss Tables (substrate losstable/ + specimen CLI)"
+    description: >
+      Add a new substrate/losstable/ package defining a LossTable struct and
+      Load() function. The loss table is a shared org-level YAML config that maps
+      data classifications and system tiers to consistent USD figures (cost_per_record,
+      downtime_cost_per_hour, assumed_exposure_hours). specimen add/update gain
+      --loss-table, --record-count, --tier, and --exposure-hours flags to derive
+      AssetValue from the table instead of requiring manual --asset-value entry.
+      This makes ALE comparable across subsidiaries without each risk officer
+      inventing their own numbers.
+    column: to_do
+    priority: high
+    sprint: sprint-10
+    labels: [substrate, specimen, fair, losstable, enterprise]
+    acceptance_criteria:
+      - "substrate/losstable/ package with LossTable struct, Load(), AssetValueForRecords(), AssetValueForTier()"
+      - "specimen add --loss-table + --record-count + --data-class derives AssetValue"
+      - "specimen add --loss-table + --tier derives AssetValue from downtime cost"
+      - "Direct --asset-value flag always takes precedence over table-derived value"
+      - "substrate tagged v0.4.0; all 15 tool go.mod files bumped"
+    created_at: "2026-09-22"
+    updated_at: "2026-09-22"
+
+  - id: PM-056
+    type: feature
+    title: "Formulary Output Schema Versioning (titer, assay, specimen)"
+    description: >
+      Add SchemaVersion fields and validation to Formulary's three owned output
+      formats: CoverageMatrix (titer), AssessmentState (assay), and Register
+      (specimen — field exists but is never set or validated). Write paths set
+      schema_version: "1.0". Read paths on Register validate the version and
+      return an error for unknown versions. This is a prerequisite for PM-054
+      federated aggregation, which must read multi-year outputs from mixed tool
+      versions across hundreds of repos.
+    column: to_do
+    priority: medium
+    sprint: sprint-10
+    labels: [titer, assay, specimen, schema, compatibility, pm054-prereq]
+    acceptance_criteria:
+      - "titer CoverageMatrix output JSON includes schema_version: '1.0'"
+      - "assay AssessmentState JSON includes schema_version: '1.0'"
+      - "specimen Load() sets schema_version '1.0' on new registers"
+      - "specimen Load() returns error for unknown schema versions"
+      - "No substrate version bump needed (tool-local changes only)"
+    created_at: "2026-09-22"
+    updated_at: "2026-09-22"
+
+  - id: PM-057
+    type: feature
+    title: "Signing Module — Signer interface, LocalSigner (Ed25519), SigstoreSigner"
+    description: >
+      New substrate/signing/ package with a Signer interface (Sign, Verify,
+      Identity) and Signature struct. Implement LocalSigner using Ed25519 with
+      a PEM key file (covers air-gapped / on-prem builds) and SigstoreSigner
+      using Sigstore Fulcio + Rekor for OIDC-based ephemeral signing in GitHub
+      Actions / GitLab CI / AWS CodeBuild. probe gains --verify-signatures;
+      assay assemble gains --sign --signing-provider; formula gains --sign.
+      KMS implementations (AWS/GCP/Azure Key Vault) deferred to Sprint 12.
+      Hash-chain provenance (v0.3.0) and asymmetric signing are complementary:
+      chain proves sequence/tamper-evidence; signing proves identity.
+    column: to_do
+    priority: high
+    sprint: sprint-11
+    labels: [substrate, signing, probe, assay, formula, enterprise, fedramp, sox]
+    acceptance_criteria:
+      - "substrate/signing/ package with Signer interface and Signature struct"
+      - "LocalSigner signs/verifies with Ed25519 PEM key"
+      - "SigstoreSigner uses OIDC token from CI environment for ephemeral cert"
+      - "probe --verify-signatures validates artifact signatures"
+      - "assay assemble --sign --signing-provider [local|sigstore] signs output"
+      - "formula --sign signs produced artifacts"
+      - "substrate tagged v0.5.0"
+    created_at: "2026-09-22"
+    updated_at: "2026-09-22"
+
+  - id: PM-058
+    type: bug
+    title: "vital — run_date date-only format rejected with RFC3339 parse error"
+    description: >
+      vital fails with exit 2 when run_date in the run state JSON is in YYYY-MM-DD
+      format (e.g. "2026-07-22"). The tool attempts to parse it as RFC3339 and aborts.
+      Fix: try 2006-01-02 date-only format as a fallback before returning a parse error.
+      Also document the accepted date formats in the run state schema.
+    column: backlog
+    priority: high
+    sprint: sprint-11
+    labels: [vital, bug, run-state, date-parsing]
+    acceptance_criteria:
+      - "vital accepts YYYY-MM-DD run_date without error"
+      - "vital still accepts RFC3339 run_date"
+      - "Run state schema documents accepted date formats"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-059
+    type: bug
+    title: "formula — run_date parse failure causes silent empty-state artifact generation"
+    description: >
+      When formula cannot parse run_date (RFC3339 vs. date-only mismatch — same root cause
+      as PM-058), it falls back to empty ProgramState and generates headers-only CSVs.
+      Formula warns to stderr but exits 0. Fix: apply same date-only fallback parse as
+      PM-058. Additionally add state_loaded and state_error fields to JSON output so
+      downstream consumers can detect empty-state generation programmatically.
+    column: backlog
+    priority: high
+    sprint: sprint-11
+    labels: [formula, bug, run-state, date-parsing, pm058-related]
+    acceptance_criteria:
+      - "formula accepts YYYY-MM-DD run_date without falling back to empty state"
+      - "JSON output includes state_loaded: true/false field"
+      - "JSON output includes state_error field when state loading fails"
+      - "Exit code is non-zero when state cannot be loaded"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-060
+    type: task
+    title: "Makefile — add install target producing per-tool installable binaries"
+    description: >
+      The existing build-all target runs (cd $$tool && go build ./...) which validates
+      packages but writes no executables to the filesystem. Add an install target that
+      builds each tool binary to workspace-root bin/ via
+      go build -o $(WORKSPACE)/bin/$$tool ./cmd/$$tool. Document that build-all is
+      CI-only (compile check) and install is the right model for local use.
+    column: backlog
+    priority: high
+    sprint: sprint-11
+    labels: [makefile, build, install, dx]
+    acceptance_criteria:
+      - "make install writes one binary per tool to workspace-root bin/"
+      - "make build-all comment clarifies it is a CI compile check, not an install"
+      - "README documents make install usage"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-061
+    type: task
+    title: "challenge — integrate assay as pipeline stage in pipeline-iso42001"
+    description: >
+      challenge applies interrogation patterns to gemara artifacts (ControlCatalog,
+      AssessmentReport, etc.) but pipeline-iso42001 does not include it because formula
+      produces CSVs, not gemara artifacts. Fix: add assay as step 4 in pipeline-iso42001
+      (requires ControlCatalog YAML + docs dir); add challenge as step 4.5 consuming
+      assay's assessment.json output. Document required input paths for the ISO 42001
+      program in the pipeline target comment.
+    column: backlog
+    priority: high
+    sprint: sprint-11
+    labels: [challenge, assay, makefile, pipeline, iso42001]
+    acceptance_criteria:
+      - "pipeline-iso42001 includes assay step with documented ControlCatalog input path"
+      - "pipeline-iso42001 includes challenge step consuming assessment.json"
+      - "Required input paths for ISO 42001 program are documented in target comment"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-062
+    type: docs
+    title: "go.work / go.mod — document GOTOOLCHAIN=auto requirement"
+    description: >
+      go.work does not support toolchain local as a directive value. A fresh clone on a
+      machine with Go 1.24.x requires GOTOOLCHAIN=auto and a live internet connection to
+      auto-download go1.25.0. Document GOTOOLCHAIN=auto in repo README and add a note to
+      the Makefile header so contributors know the setup requirement upfront.
+    column: backlog
+    priority: medium
+    sprint: null
+    labels: [docs, makefile, go-workspace, toolchain, dx]
+    acceptance_criteria:
+      - "README documents GOTOOLCHAIN=auto requirement for workspace builds"
+      - "Makefile header includes a note about GOTOOLCHAIN=auto"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-063
+    type: task
+    title: "go.mod — lower minimum Go version to reduce onboarding friction"
+    description: >
+      All 16 go.mod files declare go 1.25.0. A contributor with Go 1.24.x cannot build
+      without GOTOOLCHAIN=auto and a network connection. Profile each tool to find the
+      actual minimum required version (likely 1.22 or 1.23 given language features used)
+      and lower the go directive accordingly so contributors with current stable Go can
+      build immediately.
+    column: backlog
+    priority: medium
+    sprint: null
+    labels: [go-modules, toolchain, dx, all-tools]
+    acceptance_criteria:
+      - "Each tool's go.mod go directive reflects the actual minimum tested version"
+      - "All 16 tools build cleanly with the lowered go directive"
+      - "Minimum version is documented in repo README"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-064
+    type: improvement
+    title: "appraise — add --warn-unrecognized flag for non-gemara inputs"
+    description: >
+      appraise uses the substrate artifact auto-loader which detects gemara YAML/JSON
+      schema types. CSVs and other non-gemara inputs are silently skipped. Add a
+      --warn-unrecognized flag (default on) so pipeline operators know when inputs are
+      being ignored. Also clarify in docs which formula outputs appraise can consume
+      (likely only JSON/YAML outputs like system-card.yaml or context-doc.json).
+    column: backlog
+    priority: medium
+    sprint: null
+    labels: [appraise, ux, pipeline, docs]
+    acceptance_criteria:
+      - "appraise --warn-unrecognized (default true) emits a warning for skipped files"
+      - "appraise --no-warn-unrecognized suppresses the warnings"
+      - "Docs clarify which input types appraise recognizes"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-065
+    type: bug
+    title: "appraise — fix pipeline-iso42001 silent no-op; add output assertion"
+    description: >
+      The pipeline-iso42001 appraise step passes formula outputs via find, but formula
+      generates only CSVs/MDs/XLSX — no JSON or YAML. find returns empty input; xargs
+      with empty stdin does not execute appraise at all. Result: step exits 0 with no
+      compliance-narrative.md written. Fix: update pipeline-iso42001 to pass gemara YAML
+      artifacts from data/ISO42001/Products/ directly to appraise. Add a
+      test -f $(OUT_DIR)/compliance-narrative.md assertion so the step fails explicitly
+      if the output is not produced.
+    column: backlog
+    priority: medium
+    sprint: null
+    labels: [appraise, makefile, pipeline, iso42001, bug]
+    acceptance_criteria:
+      - "pipeline-iso42001 appraise step passes gemara YAML artifacts from Products/"
+      - "Pipeline step fails explicitly if compliance-narrative.md is not produced"
+      - "No silent no-op on empty find results"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
+
+  - id: PM-067
+    type: chore
+    title: "dep-health: upgrade Go toolchain to 1.26.6 across all 16 modules"
+    description: >
+      10 HIGH/MEDIUM stdlib CVEs (GO-2026-*) found by external dep-health audit (2026-09-24).
+      All fixed by upgrading from go 1.25.0 to go 1.26.6. Bumped go directive in all 16 go.mod
+      files, ran go mod tidy, updated go-version in all CI workflows, updated README/Makefile docs.
+      golangci-lint v2.13.2 confirmed compatible (built with Go 1.26.0).
+    column: done
+    priority: high
+    sprint: null
+    labels: [security, go-upgrade, ci, all-repos]
+    acceptance_criteria:
+      - "All 16 go.mod files declare go 1.26.6"
+      - "All 16 CI workflows use go-version: 1.26.6"
+      - "govulncheck reports no vulnerabilities across all 16 modules"
+      - "README and Makefile updated to reference go 1.26.6"
+    created_at: "2026-09-24"
+    updated_at: "2026-09-24"
+
+  - id: PM-068
+    type: chore
+    title: "dep-health: pin govulncheck@v1.1.4 in CI; add dep-health Makefile target; add GO_VERSION file"
+    description: >
+      govulncheck was installed with @latest in CI, making scans non-reproducible and masking
+      version drift. Pinned to v1.1.4 in all 16 ci.yaml workflows. Added dep-health Makefile
+      target that installs the pinned version and runs a full scan locally. Created
+      formulary-github-org/GO_VERSION as canonical source of truth for the required Go version.
+    column: done
+    priority: medium
+    sprint: null
+    labels: [security, ci, govulncheck, all-repos]
+    acceptance_criteria:
+      - "All 16 ci.yaml workflows reference govulncheck@v1.1.4"
+      - "make dep-health installs govulncheck@v1.1.4 and runs full scan"
+      - "formulary-github-org/GO_VERSION contains 1.26.6"
+    created_at: "2026-09-24"
+    updated_at: "2026-09-24"
+
+  - id: PM-069
+    type: chore
+    title: "dep-health: enable Dependabot for Go modules and GitHub Actions across all 16 repos"
+    description: >
+      No automated dependency update PRs existed. Added canonical dependabot.yml (gomod +
+      github-actions, weekly Monday cadence, limit 5 PRs) to all 16 module repos. Canonical
+      template stored in formulary-github-org/dependabot.yml.
+    column: done
+    priority: medium
+    sprint: null
+    labels: [security, dependabot, ci, all-repos]
+    acceptance_criteria:
+      - "All 16 repos have .github/dependabot.yml"
+      - "Dependabot configured for both gomod and github-actions ecosystems"
+      - "Weekly Monday schedule with 5 PR limit"
+    created_at: "2026-09-24"
+    updated_at: "2026-09-24"
+
+  - id: PM-070
+    type: chore
+    title: "dep-health: add weekly govulncheck scheduled workflow to all 16 repos"
+    description: >
+      No recurring dependency health monitoring existed. Added .github/workflows/dep-health.yaml
+      to all 16 module repos: runs govulncheck@v1.1.4 on Monday 08:00 UTC, plus workflow_dispatch
+      for on-demand runs. Mirrors the local dep-health Makefile target.
+    column: done
+    priority: medium
+    sprint: null
+    labels: [security, ci, govulncheck, monitoring, all-repos]
+    acceptance_criteria:
+      - "All 16 repos have .github/workflows/dep-health.yaml"
+      - "Workflow runs govulncheck@v1.1.4 on schedule (Monday 08:00 UTC)"
+      - "workflow_dispatch trigger enabled for on-demand scans"
+    created_at: "2026-09-24"
+    updated_at: "2026-09-24"
+
+  - id: PM-066
+    type: improvement
+    title: "exhibit — improve first-run / migrated-workspace provenance UX"
+    description: >
+      exhibit defaults to --verify-provenance=true, which fails on a freshly migrated
+      workspace with a broken or absent hash chain (exit 2, no dashboard rendered).
+      The --skip-provenance-verify flag resolves this but must be explicitly passed.
+      Also: exhibit degrades gracefully on run_date parse errors (warn + continue) —
+      document this as the model for all tools and apply the same approach to vital.
+      Fix: on provenance failure, emit a clear human-readable message suggesting
+      --skip-provenance-verify. Consider --warn-on-provenance-failure mode that renders
+      the dashboard with a warning banner rather than refusing to run.
+    column: backlog
+    priority: medium
+    sprint: null
+    labels: [exhibit, ux, provenance, first-run, migration]
+    acceptance_criteria:
+      - "On provenance failure, error message explicitly names --skip-provenance-verify"
+      - "--warn-on-provenance-failure renders dashboard with a warning banner"
+      - "Graceful degradation pattern documented in tool architecture guide"
+    created_at: "2026-09-23"
+    updated_at: "2026-09-23"
