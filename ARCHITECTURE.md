@@ -21,7 +21,7 @@ How the Formulary ecosystem fits together — data flows, layer responsibilities
 │                                                                     │
 │  probe · assay · titer · specimen · dose · exhibit · challenge      │
 │  vital · decay · scan · compound · formula · bind                   │
-│  impact · appraise                                                   │
+│  impact · appraise · distill                                         │
 │                                                                     │
 │  Each tool does one thing. Reads gemara artifacts + program state.  │
 │  Writes gemara artifacts or structured outputs. No inference,       │
