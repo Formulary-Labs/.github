@@ -75,6 +75,7 @@ controls:
 | [`challenge`](https://github.com/Formulary-Labs/challenge) | `--catalog` | Inheritance validation in interrogation |
 | [`bind`](https://github.com/Formulary-Labs/bind) | `--source-catalog`, `--target-catalog` | Title resolution and source-ID validation |
 | [`impact`](https://github.com/Formulary-Labs/impact) | `--catalog` | ControlCatalog source; optional `--risk-catalog` (RiskCatalog) links controls to risk severity and impact text |
+| [`extract`](https://github.com/Formulary-Labs/extract) | `--catalog` | Screens onboarding kit control IDs/titles against the gemara ControlCatalog |
 
 ## Tools that require a MappingDocument
 

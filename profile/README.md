@@ -32,6 +32,9 @@ Formulary separates the deterministic work (citation extraction, coverage math, 
 | [bind](https://github.com/Formulary-Labs/bind) | Cross-framework control mapping resolver — reads a gemara MappingDocument, resolves source-to-target control mappings, flags missing IDs |
 | [impact](https://github.com/Formulary-Labs/impact) | Control impact assessment — links controls to potential harms and linked risks from a RiskCatalog; one row per control, CSV output |
 | [appraise](https://github.com/Formulary-Labs/appraise) | Framework-agnostic compliance narrative generator — accepts any combination of gemara artifacts, produces structured Markdown with `[DATA NEEDED]` handoffs for the AI agent layer |
+| [extract](https://github.com/Formulary-Labs/extract) | Product onboarding intake — screens a kit against a gemara ControlCatalog (hard gate before probe/plan assembly) |
+| [spectrometer](https://github.com/Formulary-Labs/spectrometer) | Program monitoring — cadence map, decision queue, control due-date watch |
+| [antidote](https://github.com/Formulary-Labs/antidote) | Post-audit feed-forward — corrective actions, lessons, and `specimen ingest`-compatible payload (`--emit specimen`) |
 | [regimen](https://github.com/Formulary-Labs/regimen) | Compliance program management agent — orchestrates Formulary tools, manages program memory across sessions, governs intake through audit closure |
 
 ## How the pieces fit
@@ -88,8 +91,16 @@ exhibit --program iso42001 --coverage coverage.json --risks risks.json \
         --evidence evidence.json --provenance logs/provenance.jsonl \
         > dashboard.html
 
-# Ingest post-audit findings for the next cycle
-specimen ingest --feed-forward post-audit/2026-feed-forward.json
+# Screen an onboarding kit before anything touches the program
+extract --catalog catalog.yaml --kit onboarding.json --program my-product
+
+# Watch cadence and decision queue health
+spectrometer --program program.json --now 2026-10-01T12:00:00Z
+
+# Close the audit loop into the risk register
+antidote --findings audit-findings.json --name "ISO27001-Q3" --emit specimen \
+  --output feed-forward.json
+specimen ingest --feed-forward feed-forward.json
 
 # Validate a gemara artifact in CI
 probe catalog.yaml && echo "valid"
@@ -115,6 +126,9 @@ go install github.com/Formulary-Labs/formula/cmd/formula@v0.1.0
 go install github.com/Formulary-Labs/bind/cmd/bind@v0.1.0
 go install github.com/Formulary-Labs/impact/cmd/impact@v0.1.0
 go install github.com/Formulary-Labs/appraise/cmd/appraise@v0.1.0
+go install github.com/Formulary-Labs/extract/cmd/extract@v0.1.0
+go install github.com/Formulary-Labs/spectrometer/cmd/spectrometer@v0.1.0
+go install github.com/Formulary-Labs/antidote/cmd/antidote@v0.1.0
 ```
 
 `substrate` is a library — import it as a Go module, not a binary.
@@ -123,7 +137,7 @@ Tools that require a gemara `ControlCatalog` or `MappingDocument` YAML need cata
 
 ## Status
 
-v0.1.0 released across all 15 CLI tools and the substrate library.
+v0.1.0 released across 18 CLI tools and the substrate library.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) to contribute or propose a new tool.
 

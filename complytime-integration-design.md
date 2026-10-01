@@ -1,7 +1,7 @@
 # Formulary — Proposed Complytime Integration Design
 
-**Status:** v0.1.0 — ready for submission  
-**Date:** 2026-09-21  
+**Status:** Draft — three new lifecycle atoms added 2026-Q4 (extract, spectrometer, antidote); ready for submission to complytime `docs/plans/` once tools reach v0.2.0  
+**Date:** 2026-09-18 (revised 2026-10-01)  
 **From:** Formulary-Labs (github.com/Formulary-Labs)
 
 ---
@@ -9,6 +9,8 @@
 ## Summary
 
 [Formulary](https://github.com/Formulary-Labs) is a collection of composable Go CLI micro-tools for compliance program management built on the [gemara](https://github.com/gemaraproj/gemara) schema. This document proposes integration points between Formulary tools and complytime's continuous assessment pipeline.
+
+[Regimen](https://github.com/Formulary-Labs/regimen) is the AI orchestration layer above Formulary — a principal-level compliance program management agent that invokes Formulary CLIs for deterministic work and applies judgment where tools cannot. Regimen and Formulary are designed to work together but neither requires the other.
 
 Formulary and complytime are complementary, not competing. Formulary handles human-facing ad-hoc workflows and audit prep; complytime handles continuous automated assessment. The overlap is the gemara Layer 5 artifact format both produce and consume.
 
@@ -43,17 +45,11 @@ The output is a gemara Layer 5 artifact with full requirement fidelity. This art
 
 **Complytime's problem:** Organizations operating under multiple frameworks must manually duplicate assessment work across frameworks.
 
-**Formulary's primary contribution:** `bind` reads a gemara `MappingDocument` (Layer 1 artifact) and resolves cross-framework control mappings deterministically. Given a `MappingDocument` for ISO 27001 → NIST SP 800-53 and the corresponding `ControlCatalog` files, `bind` produces a structured mapping table — which source controls correspond to which target controls, which are unmapped (no-match relationship), and which source IDs are absent from the catalog (data quality flags).
+**Formulary's contribution:** `titer` reads gemara Layer 2 control catalogs and computes coverage matrices. Because it operates on the gemara schema (which is framework-agnostic), the same coverage computation works across any framework represented in gemara.
 
-This is a direct answer to the cross-framework duplication problem: instead of re-assessing against every framework independently, organizations maintain a gemara `MappingDocument` and use `bind` to derive coverage overlap from existing assessments.
+The deferred `bind` tool (cross-framework control mapping) would extend this further. However, `bind` is deferred due to limited production evidence — this contribution should be revisited when complytime's cross-framework problem doc matures.
 
-`titer` addresses a complementary angle: it computes coverage matrices from a single framework's control catalog. For single-framework coverage analysis, `titer` is the right tool. For cross-framework equivalence resolution, `bind` is more directly relevant.
-
-**Proposed integration:** 
-- `bind --document mapping.yaml --format json` → complytime ingest for cross-framework control equivalences
-- Unmapped controls from `bind --filter unmapped` feed into complytime as coverage gaps requiring independent assessment
-
-**Proposed schema contribution:** The gemara `MappingDocument` artifact type (already in the gemara schema) is the natural schema for cross-framework control mappings in complytime. We propose complytime adopt `MappingDocument` as the standard input format for cross-framework mapping workflows rather than developing a parallel format.
+**Proposed integration:** `titer --catalog frameworkA.yaml | titer --catalog frameworkB.yaml --compare` for cross-framework coverage gap analysis.
 
 ### Evidence Integration Problem
 
@@ -78,6 +74,9 @@ All Formulary tools produce gemara-compatible artifacts where applicable:
 | `titer` | reads Layer 2 | produces coverage JSON (candidate for gemara Layer 3) |
 | `specimen` | reads/writes | risk catalog entries (compatible with gemara RiskCatalog) |
 | `formula` | produces | SOA CSV, risk CSV — candidates for gemara schema additions |
+| `extract` | reads Layer 2 | intake screen report — pre-pipeline hard gate |
+| `spectrometer` | reads program state | monitoring report — cadence, decisions, due-date overrides |
+| `antidote` | produces | post-audit feed-forward JSON consumed by `specimen ingest` |
 
 ---
 
@@ -89,7 +88,7 @@ Based on Formulary's production usage, we propose the following additions to the
 
 2. **Layer 5 Extensions: Citation Quality** — adding `citation_quality` to assessment requirement entries (direct_assertion | topical_reference | adjacent_capability | architectural_description | citation_not_found). This is already in `assay`'s state model and is a direct improvement to requirement fidelity.
 
-3. **Post-Audit Feed-Forward** — a schema for audit-to-improvement loop artifacts consumed by `specimen ingest`. Currently an informal JSON format; should be standardized.
+3. **Post-Audit Feed-Forward** — a schema for audit-to-improvement loop artifacts consumed by `specimen ingest`. **Now implemented:** `antidote --emit specimen` produces a `[]FeedForwardEntry` JSON array that `specimen ingest --feed-forward` consumes directly. Proposing standardization of this format in the gemara schema as a Layer 6 (post-audit) artifact type.
 
 ---
 
@@ -97,9 +96,9 @@ Based on Formulary's production usage, we propose the following additions to the
 
 | Milestone | Target | Artifact |
 |---|---|---|
-| Formulary v0.1.0 (all 13 tools released) | 2026-09-21 ✓ | This document — initial submission |
-| gemara schema proposals | 2026-Q4 | PRs to gemaraproj/gemara for Layer 3 and citation quality extensions |
-| complytime problem doc alignment | 2026-Q4 | Follow-up discussion on `MappingDocument` adoption for cross-framework workflows |
+| Formulary v0.2.0 (all tools stable, including extract/spectrometer/antidote) | 2026-Q4 | Open issue in complytime proposing this document |
+| gemara schema proposals | 2026-Q4 | PRs to gemaraproj/gemara for Layer 3, citation quality extensions, and Layer 6 post-audit feed-forward |
+| complytime problem doc alignment | 2027-Q1 | Submit design doc to complytime docs/plans/ |
 | assay evaluator protocol | 2027-Q1 | Draft evaluator protocol spec for complytime review |
 
 ---

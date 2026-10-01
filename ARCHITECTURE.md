@@ -21,7 +21,7 @@ How the Formulary ecosystem fits together — data flows, layer responsibilities
 │                                                                     │
 │  probe · assay · titer · specimen · dose · exhibit · challenge      │
 │  vital · decay · scan · compound · formula · bind                   │
-│  impact · appraise · distill                                         │
+│  impact · appraise · distill · extract · spectrometer · antidote    │
 │                                                                     │
 │  Each tool does one thing. Reads gemara artifacts + program state.  │
 │  Writes gemara artifacts or structured outputs. No inference,       │
@@ -73,24 +73,30 @@ Layer 5 — Assessment results
 ### Typical data flow
 
 ```
-ControlCatalog (L1) ──► assay ──► EvaluationLog (L5)
-                                        │
-                    ┌───────────────────┤
-                    │                   │
-                    ▼                   ▼
-              titer (coverage)    challenge (interrogation)
-                    │
-                    ▼
-              specimen (risks) ──► RiskCatalog (L5)
-                    │
-                    ▼
-           dose (calendar) · exhibit (auditor view) · vital (health)
-                    │
-                    ▼
-           formula (artifact pipeline) · compound (management system doc)
+onboarding kit ──► extract (intake gate) ──► ControlCatalog (L1) ──► assay ──► EvaluationLog (L5)
+                                                              │
+                                          ┌───────────────────┤
+                                          │                   │
+                                          ▼                   ▼
+                                    titer (coverage)    challenge (interrogation)
+                                          │
+                                          ▼
+                                    specimen (risks) ──► RiskCatalog (L5)
+                                          │
+                                          ▼
+                     dose · exhibit · vital · spectrometer (cadence / decisions)
+                                          │
+                                          ▼
+                     formula · compound · antidote --emit specimen ──► specimen ingest
 ```
 
 `probe` validates any artifact at any layer before it enters a pipeline step.
+
+`extract` is the pre-pipeline hard gate — screens a product onboarding kit against a gemara ControlCatalog before probe or plan assembly.
+
+`spectrometer` monitors program cadence, control due dates, and the decision queue (complements `vital`).
+
+`antidote` produces post-audit feed-forward JSON; `--emit specimen` is directly consumable by `specimen ingest`.
 
 `bind` operates at Layer 1 — it reads `MappingDocument` artifacts and resolves cross-framework control equivalences without producing a new gemara layer artifact (output is JSON/MD/CSV for downstream use).
 
