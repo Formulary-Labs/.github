@@ -1,146 +1,128 @@
-# Formulary
+# Formulary Labs
 
-Composable open-source compliance tools.
+**Composable CLIs for compliance compute.**
 
-Each tool does one thing. Every tool reads and writes [gemara](https://github.com/gemaraproj/gemara)-compatible artifacts — any tool's output is valid input to the next. No tool requires another to operate at runtime. Composition is pipes and files.
+Formulary Labs builds small, deterministic Go tools for governance and compliance
+program management. OSCAL is the interchange language. Gemara remains a supported
+dialect. Each tool does one job. Tools never import each other. Shared
+contracts live in [`substrate`](https://github.com/Formulary-Labs/substrate).
 
-One tool standalone, a few piped together, or the full suite under [regimen](https://github.com/Formulary-Labs/regimen). Any subset works.
+Install only what you need. Each tool has one responsibility, shares a common
+runtime contract via `substrate`, and can be versioned or swapped independently.
 
-## Why
+Orchestrators (Make pipelines, agent layers such as `regimen`) compose tools into a
+run. They are never required for a tool to work alone.
 
-Manual compliance work does not scale. Running multiple certifications simultaneously means doing the same extraction, mapping, and documentation work across each one — most of it deterministic.
+## Why it exists
 
-Formulary separates the deterministic work (citation extraction, coverage math, evidence scheduling, drift detection, document assembly) from the judgment work (prioritization, communication, stakeholder management). The deterministic work runs in a terminal or a CI pipeline. The judgment work is where human and AI attention belongs.
+Compliance programs drown in prose and one-off scripts. Formulary hollows out the
+non-deterministic middle: catalog validation, coverage math, plan assembly, drift
+detection, and post-audit feed-forward become exit-code-clean CLIs. Judgment —
+comms drafting, evidence confidence tagging, vendor scoring — stays with humans
+and LLM agents, marked explicitly as `[DATA NEEDED]` / `[INFERRED]`.
 
-## Tools
+## Lifecycle tools
 
-| Tool | What it does |
+```
+extract ──► probe / distill / compound / formula ──► spectrometer ──► antidote
+ (intake)              (build & assess)                  (monitor)        (close)
+```
+
+| Tool | Repo | One-liner |
+|---|---|---|
+| **extract** | [extract](https://github.com/Formulary-Labs/extract) | Screen a product onboarding kit against an OSCAL or gemara catalog — hard gate before program writes |
+| **probe** | [probe](https://github.com/Formulary-Labs/probe) | Validate OSCAL and gemara artifacts; CI-friendly exit codes (`0` / `1` / `2`) |
+| **distill** | [distill](https://github.com/Formulary-Labs/distill) | Legacy markdown → gemara `Policy` (packet docs routed, not emitted; pair with native OSCAL catalogs) |
+| **compound** | [compound](https://github.com/Formulary-Labs/compound) | Annex SL security plan assembly (`--assemble-plan`) with hard packet boundary |
+| **formula** | [formula](https://github.com/Formulary-Labs/formula) | Deterministic packet artifacts: SoA, risk CSVs, system card, impact |
+| **assay** | [assay](https://github.com/Formulary-Labs/assay) | Resumable control assessment with 7-criterion validation |
+| **challenge** | [challenge](https://github.com/Formulary-Labs/challenge) | Adversarial interrogation patterns against assessments and plans |
+| **appraise** | [appraise](https://github.com/Formulary-Labs/appraise) | Framework-agnostic compliance narrative from OSCAL catalogs and gemara artifacts |
+| **spectrometer** | [spectrometer](https://github.com/Formulary-Labs/spectrometer) | Cadence map, decision queue, overdue controls — model-free watch |
+| **antidote** | [antidote](https://github.com/Formulary-Labs/antidote) | Post-audit feed-forward → `specimen` ingest |
+| **substrate** | [substrate](https://github.com/Formulary-Labs/substrate) | Shared library: exit contract, flags, provenance, OSCAL and gemara loaders |
+
+## Full tool table
+
+| Tool | Description |
 |---|---|
-| [substrate](https://github.com/Formulary-Labs/substrate) | Core library — gemara SDK wrappers, shared CLI conventions, provenance writer |
-| [probe](https://github.com/Formulary-Labs/probe) | Validate a gemara artifact — structured results and clean exit codes for CI |
-| [assay](https://github.com/Formulary-Labs/assay) | Control assessment engine — fill templates from product docs, produce gemara Layer 5 artifacts, resumable by checkpoint |
-| [titer](https://github.com/Formulary-Labs/titer) | Control coverage matrix — coverage % by family, owner gaps, evidence gaps |
-| [specimen](https://github.com/Formulary-Labs/specimen) | Risk register and POA&M — stable IDs, severity matrix, post-audit feed-forward ingest |
-| [dose](https://github.com/Formulary-Labs/dose) | Evidence collection calendar — RFC 5545 `.ics` and Markdown, shift-left scheduled to working days |
-| [exhibit](https://github.com/Formulary-Labs/exhibit) | Auditor compliance posture view — static HTML, no JavaScript, no internal-only data |
-| [challenge](https://github.com/Formulary-Labs/challenge) | Adversarial artifact interrogation — 10 deterministic patterns for audit readiness review |
-| [vital](https://github.com/Formulary-Labs/vital) | Program health snapshot — traffic-light ratings across coverage, risks, evidence, decisions |
-| [decay](https://github.com/Formulary-Labs/decay) | Longitudinal compliance drift detection — 13 named patterns across two audit cycles |
-| [scan](https://github.com/Formulary-Labs/scan) | External regulatory and threat monitoring — 5 source categories, structured relevance scoring |
-| [compound](https://github.com/Formulary-Labs/compound) | Management system document generator — Annex SL Clauses 4–10 for ISO 27001, ISO 42001, IEC 62443 |
-| [formula](https://github.com/Formulary-Labs/formula) | Deterministic artifact generation — SOA CSV, risk CSV, evidence registry, system card, and more |
-| [bind](https://github.com/Formulary-Labs/bind) | Cross-framework control mapping resolver — reads a gemara MappingDocument, resolves source-to-target control mappings, flags missing IDs |
-| [impact](https://github.com/Formulary-Labs/impact) | Control impact assessment — links controls to potential harms and linked risks from a RiskCatalog; one row per control, CSV output |
-| [appraise](https://github.com/Formulary-Labs/appraise) | Framework-agnostic compliance narrative generator — accepts any combination of gemara artifacts, produces structured Markdown with `[DATA NEEDED]` handoffs for the AI agent layer |
-| [extract](https://github.com/Formulary-Labs/extract) | Product onboarding intake — screens a kit against a gemara ControlCatalog (hard gate before probe/plan assembly) |
-| [spectrometer](https://github.com/Formulary-Labs/spectrometer) | Program monitoring — cadence map, decision queue, control due-date watch |
-| [antidote](https://github.com/Formulary-Labs/antidote) | Post-audit feed-forward — corrective actions, lessons, and `specimen ingest`-compatible payload (`--emit specimen`) |
-| [regimen](https://github.com/Formulary-Labs/regimen) | Compliance program management agent — orchestrates Formulary tools, manages program memory across sessions, governs intake through audit closure |
+| [antidote](https://github.com/Formulary-Labs/antidote) | Post-audit feed-forward — corrective actions, lessons, specimen-ingest payload |
+| [appraise](https://github.com/Formulary-Labs/appraise) | Framework-agnostic compliance narrative from OSCAL catalogs and gemara artifacts |
+| [assay](https://github.com/Formulary-Labs/assay) | Control assessment engine (init → fill → validate → assemble) |
+| [bind](https://github.com/Formulary-Labs/bind) | Cross-framework control mapping resolver |
+| [challenge](https://github.com/Formulary-Labs/challenge) | Adversarial interrogation of compliance assessments |
+| [compound](https://github.com/Formulary-Labs/compound) | Annex SL management system / security plan assembly (`--assemble-plan`) |
+| [decay](https://github.com/Formulary-Labs/decay) | Longitudinal compliance drift detection |
+| [distill](https://github.com/Formulary-Labs/distill) | Legacy docs → gemara Policy converter (pairs with native OSCAL catalogs) |
+| [dose](https://github.com/Formulary-Labs/dose) | Evidence collection calendar (`.ics`) |
+| [exhibit](https://github.com/Formulary-Labs/exhibit) | Read-only auditor HTML dashboard |
+| [extract](https://github.com/Formulary-Labs/extract) | Product onboarding intake hard gate |
+| [formula](https://github.com/Formulary-Labs/formula) | Deterministic SoA / risk / system-card / impact generation |
+| [impact](https://github.com/Formulary-Labs/impact) | Impact assessment from a ControlCatalog |
+| [probe](https://github.com/Formulary-Labs/probe) | OSCAL and gemara artifact validator |
+| [scan](https://github.com/Formulary-Labs/scan) | External regulatory / threat intelligence monitoring |
+| [specimen](https://github.com/Formulary-Labs/specimen) | Risk register (FAIR ALE) + feed-forward ingest |
+| [spectrometer](https://github.com/Formulary-Labs/spectrometer) | Program monitoring — cadence, decisions, due dates |
+| [substrate](https://github.com/Formulary-Labs/substrate) | Shared Go library |
+| [titer](https://github.com/Formulary-Labs/titer) | Control coverage matrix and gap analysis |
+| [vital](https://github.com/Formulary-Labs/vital) | Program health snapshot |
 
-## How the pieces fit
-
-```
-                gemara schemas + go-gemara SDK
-                         │
-               ┌─────────┴──────────┐
-         gemara-mcp               Formulary CLIs
-    (optional MCP server)    (any subset, standalone)
-               │                    │
-               └─────── regimen ────┘   ← optional agent layer
-                            │
-                       complytime         ← optional consumer
-```
-
-No connection in this diagram is mandatory. Each layer is independently useful.
-
-**[gemara](https://github.com/gemaraproj/gemara)** provides the schema and Go SDK that every Formulary tool builds on. `substrate` wraps `go-gemara` so tools share validation logic without duplicating it.
-
-**[gemara-mcp](https://github.com/gemaraproj/gemara-mcp)** is the MCP server for AI agents interacting with gemara schemas. It and Formulary tools are parallel consumers of the same schema layer: `gemara-mcp` feeds AI agents context; Formulary tools produce artifacts that both AI agents and CI pipelines consume.
-
-**[complytime](https://github.com/complytime/complytime)** is a continuous automated compliance assessment system for cloud-native environments. Formulary tools produce gemara Layer 5 artifacts that complytime's pipeline can ingest.
-
-## AI orchestration
-
-These tools are AI-optional at the tool level and AI-beneficial at the orchestration level.
-
-A practitioner runs `assay` from a terminal. A CI pipeline runs `probe` in a GitHub Action. No model required, no API key, no token budget.
-
-An AI agent calling these tools reduces token overhead: instead of loading an entire framework document, product documentation corpus, and evidence history into context, the agent calls `assay` and receives a structured gemara Layer 5 artifact. Deterministic extraction happens outside the context window. The agent's reasoning applies only where judgment is needed.
-
-Formulary tools work without regimen. Regimen works without any given Formulary CLI — its function specs contain enough guidance for an agent to execute manually when a CLI is not installed. All tools emit machine-readable output first (`--format json` default). Exit codes are meaningful: 0 = clean, 1 = validation failure, 2 = tool error.
-
-## Composability
-
-```bash
-# Assess a product, add high-severity gaps to the risk register
-assay --framework iec62443 --catalog catalog.yaml --product-source docs/ \
-  | titer --severity high \
-  | specimen add
-
-# Interrogate an assessment artifact before submitting to auditors
-assay --framework iso27001 --catalog catalog.yaml --product-source docs/ > assessment.json
-challenge assessment.json --severity-threshold medium
-
-# Detect drift since last quarter
-decay --from snapshots/2026-Q2.json --to snapshots/2026-Q3.json \
-  | vital --format md > health.md
-
-# Build an auditor-ready exhibit from current program state
-titer --catalog catalog.yaml --soa soa.csv > coverage.json
-exhibit --program iso42001 --coverage coverage.json --risks risks.json \
-        --evidence evidence.json --provenance logs/provenance.jsonl \
-        > dashboard.html
-
-# Screen an onboarding kit before anything touches the program
-extract --catalog catalog.yaml --kit onboarding.json --program my-product
-
-# Watch cadence and decision queue health
-spectrometer --program program.json --now 2026-10-01T12:00:00Z
-
-# Close the audit loop into the risk register
-antidote --findings audit-findings.json --name "ISO27001-Q3" --emit specimen \
-  --output feed-forward.json
-specimen ingest --feed-forward feed-forward.json
-
-# Validate a gemara artifact in CI
-probe catalog.yaml && echo "valid"
-```
+Artifact / catalog roles: [CATALOGS.md](CATALOGS.md).
 
 ## Installation
 
-All CLI tools are available as pre-built binaries (linux/amd64, darwin/arm64, darwin/amd64, windows/amd64) from each tool's releases page, or install from source:
+```sh
+export GOTOOLCHAIN=auto   # modules declare go 1.26.6
 
-```bash
-go install github.com/Formulary-Labs/probe/cmd/probe@v0.1.0
-go install github.com/Formulary-Labs/assay/cmd/assay@v0.1.0
-go install github.com/Formulary-Labs/titer/cmd/titer@v0.1.0
-go install github.com/Formulary-Labs/specimen/cmd/specimen@v0.1.0
-go install github.com/Formulary-Labs/dose/cmd/dose@v0.1.0
-go install github.com/Formulary-Labs/exhibit/cmd/exhibit@v0.1.0
-go install github.com/Formulary-Labs/challenge/cmd/challenge@v0.1.0
-go install github.com/Formulary-Labs/vital/cmd/vital@v0.1.0
-go install github.com/Formulary-Labs/decay/cmd/decay@v0.1.0
-go install github.com/Formulary-Labs/scan/cmd/scan@v0.1.0
-go install github.com/Formulary-Labs/compound/cmd/compound@v0.1.0
-go install github.com/Formulary-Labs/formula/cmd/formula@v0.1.0
-go install github.com/Formulary-Labs/bind/cmd/bind@v0.1.0
-go install github.com/Formulary-Labs/impact/cmd/impact@v0.1.0
-go install github.com/Formulary-Labs/appraise/cmd/appraise@v0.1.0
-go install github.com/Formulary-Labs/extract/cmd/extract@v0.1.0
-go install github.com/Formulary-Labs/spectrometer/cmd/spectrometer@v0.1.0
-go install github.com/Formulary-Labs/antidote/cmd/antidote@v0.1.0
+go install github.com/Formulary-Labs/probe/cmd/probe@latest
+go install github.com/Formulary-Labs/extract/cmd/extract@latest
+go install github.com/Formulary-Labs/distill/cmd/distill@latest
+go install github.com/Formulary-Labs/compound/cmd/compound@latest
+go install github.com/Formulary-Labs/formula/cmd/formula@latest
+go install github.com/Formulary-Labs/impact/cmd/impact@latest
+go install github.com/Formulary-Labs/appraise/cmd/appraise@latest
+go install github.com/Formulary-Labs/spectrometer/cmd/spectrometer@latest
+go install github.com/Formulary-Labs/antidote/cmd/antidote@latest
 ```
 
-`substrate` is a library — import it as a Go module, not a binary.
+Library:
 
-Tools that require a gemara `ControlCatalog` or `MappingDocument` YAML need catalog files. See [CATALOGS.md](../CATALOGS.md) for known catalog sources.
+```sh
+go get github.com/Formulary-Labs/substrate@latest
+```
 
-## Status
+Pre-built binaries (linux/darwin/windows × amd64/arm64) ship on each tool's GitHub Releases page with checksums and SPDX SBOMs.
 
-v0.1.0 released across 18 CLI tools and the substrate library.
+## Quick start — security plan from OSCAL or gemara
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) to contribute or propose a new tool.
+```sh
+# 1. Validate artifacts
+probe --program my-isms data/oscal/*.yaml
 
-## License
+# 2. Assemble Annex SL plan (packet materials cited, not inlined)
+compound --assemble-plan \
+  --program my-isms --standard iso27001 \
+  --oscal data/oscal/ \
+  --output out/security-plan.md \
+  --report out/assembly-report.json
 
-Apache License 2.0. See individual tool repositories for details.
+# 3. Interrogate structure
+challenge out/security-plan.md --program my-isms --format md
+```
+
+`--gemara` is a deprecated alias for `--oscal`. Legacy markdown first? Run `distill --input docs/legacy --out data/oscal --program my-isms`, then probe.
+
+## Design principles
+
+1. **Single-purpose tools** — each CLI runs alone; composition is optional.
+2. **Pick-and-choose** — install only the binaries your workflow needs.
+3. **Determinism** — same inputs → same outputs; clock inputs are explicit (`--now`).
+4. **Visible judgment boundary** — never silently invent compliance prose.
+5. **Hard packet boundary** — SoA / risk / impact stay in the assessment packet; plans cite them.
+6. **Shared foundation** — exit codes `0` / `1` / `2`, provenance JSONL, OSCAL and gemara loaders via `substrate`.
+
+## Related
+
+- Workspace monorepo overview (pipelines, Make targets): see the formulary workspace README
+- Handoff contract for orchestrators: `docs/HANDOFF-CONTRACT.md` in the workspace
+- Complytime integration design: [../complytime-integration-design.md](../complytime-integration-design.md)
